@@ -1,6 +1,14 @@
 {
   "articles": [
     {
+      "id": "how-ai-generates-trade-recommendations-explained",
+      "title": "How AI Generates Trade Recommendations Explained",
+      "excerpt": "",
+      "featuredImage": "",
+      "publishDate": "2026-05-17",
+      "content": "<p>No content provided.</p>"
+    },
+    {
       "id": "how-three-ai-agents-collaborate",
       "title": "How 3 AI Agents Collaborate to Make a Single Trade",
       "excerpt": "Inside Trion's multi-agent pipeline — how the Analyst, Strategist, and Decision agents pass analysis through Redis Streams to produce one auditable trading signal.",
