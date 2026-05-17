@@ -1,540 +1,896 @@
 <!DOCTYPE html>
-<!-- saved from url=(0021)https://usetrion.com/ -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript" src="./Trion — An AI That Trades_files/rmlhf73d3qzuf-5IvwKHh_NS-U2uXhtsO9Px-ZmpR99ueargo7bbBpQMgkSzQMgaIUoAMavvSIP6S3xGWEgbK-k2cNRqqf9nhOqi7j4K74VUveumSMp1q9AwGVeti1zmN1WuDUC5_QbEeqgG7wAx-PO00qbEmQdsBaDrX2FPBKepRkQlv-I3SD2q_GtQ2E-BHRHnf5q15vt_"></script>
-  
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trion — An AI That Trades</title>
-  <meta name="description" content="An autonomous AI trading system built live in public. 3 AI agents. 1 decision. Apply for the beta.">
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+  <title>TRION — AI Trading Infrastructure</title>
+  <meta name="description" content="AI trading infrastructure. Deterministic by design. TRION separates AI reasoning, validation, independent risk authority, and execution boundaries into one transparent paper-trading workstation.">
+  
+  <!-- Google Analytics placeholder -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=YOUR-GA-ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'YOUR-GA-ID');
+  </script> -->
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     :root {
-      --bg: #060a0f;
-      --surface: #0d1117;
-      --surface2: #111820;
-      --border: #1a2332;
-      --border2: #243040;
-      --cyan: #00d4ff;
-      --green: #00ff88;
-      --red: #ff3b5c;
-      --yellow: #f0b429;
-      --text: #e8edf2;
-      --muted: #4a5568;
-      --muted2: #718096;
+      --bg-deep: #030508;
+      --bg: #060a10;
+      --bg-surface: #0a0f16;
+      --bg-elevated: #0d1219;
+      --bg-card: #101820;
+      --border: #151d28;
+      --border-light: #1a2535;
+      --border-active: #243040;
+      --cyan: #00c8e8;
+      --cyan-dim: #0099b8;
+      --cyan-glow: rgba(0, 200, 232, 0.15);
+      --amber: #e8a912;
+      --amber-dim: #b8860b;
+      --amber-glow: rgba(232, 169, 18, 0.12);
+      --green: #10b981;
+      --green-dim: #059669;
+      --red: #ef4444;
+      --text: #e2e8f0;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-dim: #475569;
+    }
+
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
-      background: var(--bg);
+      background: var(--bg-deep);
       color: var(--text);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* Canvas background */
-    #bgCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      opacity: 0.35;
-    }
-
-    /* Grid overlay */
-    body::before {
-      content: '';
+    /* Blueprint grid overlay */
+    .grid-overlay {
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
-      background-size: 48px 48px;
+        linear-gradient(rgba(0, 200, 232, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 200, 232, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
       z-index: 0;
     }
 
     /* Vignette */
-    body::after {
-      content: '';
+    .vignette {
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse at center, transparent 40%, rgba(6,10,15,0.85) 100%);
+      background: radial-gradient(ellipse at center, transparent 30%, var(--bg-deep) 100%);
       pointer-events: none;
       z-index: 0;
     }
 
     .container {
-      max-width: 700px;
+      max-width: 1200px;
       margin: 0 auto;
       padding: 0 24px;
       position: relative;
       z-index: 1;
     }
 
-    /* Nav */
+    /* ========================================
+       NAVIGATION
+    ======================================== */
     nav {
-      padding: 28px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(6, 10, 16, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 56px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
     .logo {
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 500;
-      font-size: 18px;
+      font-weight: 600;
+      font-size: 16px;
       color: var(--cyan);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
     }
 
     .nav-right {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 12px;
     }
 
-    .price-ticker {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted2);
+    .status-badges {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .price-val {
+    .status-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-badge.paper {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
       color: var(--green);
     }
 
-    .status {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--green);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
-      50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(0,255,136,0); }
-    }
-
-    /* Scanline effect on hero */
-    .hero-frame {
-      position: relative;
-      border: 1px solid var(--border2);
-      border-radius: 16px;
-      padding: 56px 40px 48px;
-      margin: 8px 0 40px;
-      background: rgba(13,17,23,0.6);
-      backdrop-filter: blur(12px);
-      overflow: hidden;
-    }
-
-    .hero-frame::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-      opacity: 0.6;
-    }
-
-    .frame-corner {
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      border-color: var(--cyan);
-      border-style: solid;
-      opacity: 0.4;
-    }
-    .frame-corner.tl { top: 8px; left: 8px; border-width: 1px 0 0 1px; }
-    .frame-corner.tr { top: 8px; right: 8px; border-width: 1px 1px 0 0; }
-    .frame-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 1px 1px; }
-    .frame-corner.br { bottom: 8px; right: 8px; border-width: 0 1px 1px 0; }
-
-    .hero {
-      text-align: center;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
+    .status-badge.readonly {
+      background: rgba(0, 200, 232, 0.08);
+      border: 1px solid rgba(0, 200, 232, 0.15);
       color: var(--cyan);
-      border: 1px solid rgba(0,212,255,0.2);
-      background: rgba(0,212,255,0.04);
-      padding: 5px 14px;
-      border-radius: 100px;
-      margin-bottom: 28px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
     }
 
-    .badge-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--cyan);
-      animation: pulse 2s infinite;
+    .status-badge.risk {
+      background: var(--amber-glow);
+      border: 1px solid rgba(232, 169, 18, 0.2);
+      color: var(--amber);
     }
 
-    h1 {
-      font-size: clamp(34px, 7vw, 60px);
-      font-weight: 900;
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-      margin-bottom: 18px;
-    }
-
-    h1 span {
-      background: linear-gradient(135deg, var(--cyan) 0%, var(--green) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .subtitle {
-      font-size: 17px;
-      color: var(--muted2);
-      line-height: 1.65;
-      max-width: 460px;
-      margin: 0 auto 36px;
-      font-weight: 400;
-    }
-
-    /* Spot counter */
-    .spot-counter {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted2);
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      margin-bottom: 32px;
-    }
-
-    .spot-bar {
-      width: 80px;
-      height: 4px;
-      background: var(--border2);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-
-    .spot-fill {
-      height: 100%;
-      width: 23%;
-      background: linear-gradient(90deg, var(--cyan), var(--green));
-      border-radius: 2px;
-      animation: fillPulse 3s ease-in-out infinite;
-    }
-
-    @keyframes fillPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.7; }
-    }
-
-    /* Apply button hero */
-    .btn-apply {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, var(--cyan), var(--green));
-      color: #000;
-      border: none;
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
+    .btn-beta {
       font-family: 'Inter', sans-serif;
-      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px 16px;
+      background: var(--cyan);
+      color: var(--bg-deep);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
       text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
     }
 
-    .btn-apply:hover {
-      opacity: 0.92;
+    .btn-beta:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    /* ========================================
+       HERO SECTION
+    ======================================== */
+    .hero {
+      padding: 120px 0 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      min-height: 85vh;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(32px, 4vw, 48px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero-content h1 span {
+      color: var(--cyan);
+    }
+
+    .hero-content .subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin-bottom: 32px;
+      max-width: 480px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 14px 24px;
+      background: var(--cyan);
+      color: var(--bg-deep);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
       transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(0,212,255,0.25);
+      box-shadow: 0 8px 24px var(--cyan-glow);
     }
-
-    .btn-apply:active { transform: translateY(0); }
 
     .btn-secondary {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: transparent;
-      color: var(--muted2);
-      border: 1px solid var(--border2);
-      padding: 15px 24px;
-      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
       font-size: 14px;
       font-weight: 500;
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      transition: border-color 0.2s, color 0.2s;
-      text-decoration: none;
-    }
-
-    .btn-secondary:hover { border-color: var(--border2); color: var(--text); }
-
-    .hero-ctas {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    /* Stats */
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin: 0 0 40px;
-    }
-
-    .stat {
-      background: rgba(13,17,23,0.7);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      backdrop-filter: blur(8px);
-      transition: border-color 0.2s;
-    }
-
-    .stat:hover { border-color: var(--border2); }
-
-    .stat-number {
-      font-size: 26px;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--cyan);
-      letter-spacing: -0.02em;
-    }
-
-    .stat-label {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    /* Mini chart */
-    .mini-chart-wrap {
-      background: rgba(13,17,23,0.7);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px 24px;
-      margin-bottom: 16px;
-      backdrop-filter: blur(8px);
-    }
-
-    .chart-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 12px;
-    }
-
-    .chart-title {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted2);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .chart-badge {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      padding: 3px 10px;
-      border-radius: 4px;
-      background: rgba(0,255,136,0.08);
-      border: 1px solid rgba(0,255,136,0.15);
-      color: var(--green);
-    }
-
-    #miniChart {
-      width: 100%;
-      height: 60px;
-    }
-
-    /* Pipeline */
-    .section-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      margin-bottom: 14px;
-      text-align: center;
-    }
-
-    .pipeline {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-bottom: 40px;
-    }
-
-    .pipe-step {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      padding: 9px 14px;
+      padding: 14px 24px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
       border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted2);
-      transition: all 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
     }
 
-    .pipe-step.active {
-      border-color: rgba(0,212,255,0.3);
-      color: var(--cyan);
-      background: rgba(0,212,255,0.05);
-      box-shadow: 0 0 12px rgba(0,212,255,0.08);
-    }
-
-    .pipe-step.signal {
-      border-color: rgba(0,255,136,0.3);
-      color: var(--green);
-      background: rgba(0,255,136,0.05);
-    }
-
-    .pipe-arrow {
-      color: var(--border2);
-      font-size: 12px;
-    }
-
-    /* Features */
-    .features {
-      display: grid;
-      gap: 10px;
-      margin-bottom: 48px;
-    }
-
-    .feature {
-      background: rgba(13,17,23,0.7);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 22px;
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-      backdrop-filter: blur(8px);
-      transition: border-color 0.2s, background 0.2s;
-    }
-
-    .feature:hover {
-      border-color: var(--border2);
-      background: rgba(17,24,32,0.85);
-    }
-
-    .feature-icon {
-      font-size: 18px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
-    .feature-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 3px;
+    .btn-secondary:hover {
+      border-color: var(--border-active);
       color: var(--text);
     }
 
-    .feature-desc {
-      font-size: 13px;
-      color: var(--muted2);
-      line-height: 1.55;
-    }
-
-    /* APPLICATION FORM */
-    .apply-section {
-      border: 1px solid var(--border2);
-      border-radius: 16px;
-      padding: 40px;
-      margin-bottom: 48px;
-      background: rgba(13,17,23,0.8);
-      backdrop-filter: blur(16px);
-      position: relative;
+    /* Runtime Pipeline Panel */
+    .runtime-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
       overflow: hidden;
     }
 
-    .apply-section::before {
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .panel-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+    }
+
+    .pipeline-flow {
+      padding: 24px 20px;
+    }
+
+    .pipeline-stage {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 0;
+      position: relative;
+    }
+
+    .pipeline-stage:not(:last-child)::after {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), var(--green), transparent);
-      opacity: 0.5;
+      left: 11px;
+      top: 36px;
+      width: 1px;
+      height: calc(100% - 16px);
+      background: var(--border-light);
     }
 
-    .apply-header {
+    .stage-indicator {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stage-indicator.active {
+      background: var(--cyan-glow);
+      border: 1px solid rgba(0, 200, 232, 0.3);
+      color: var(--cyan);
+    }
+
+    .stage-indicator.pending {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    .stage-indicator.complete {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--green);
+    }
+
+    .stage-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stage-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    .stage-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .latency {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .confidence-bar {
+      width: 48px;
+      height: 4px;
+      background: var(--bg-card);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .confidence-fill {
+      height: 100%;
+      background: var(--cyan);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+
+    .stage-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 3px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stage-badge.paper-only {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      color: var(--green);
+    }
+
+    /* ========================================
+       SECTION STYLES
+    ======================================== */
+    section {
+      padding: 100px 0;
+    }
+
+    .section-header {
       text-align: center;
-      margin-bottom: 32px;
+      margin-bottom: 56px;
     }
 
-    .apply-header h2 {
-      font-size: 26px;
-      font-weight: 800;
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(24px, 3vw, 36px);
+      font-weight: 700;
       letter-spacing: -0.02em;
-      margin-bottom: 8px;
+      margin-bottom: 16px;
+      color: var(--text);
     }
 
-    .apply-header p {
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ========================================
+       PHILOSOPHY SECTION
+    ======================================== */
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .philosophy-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 24px;
+      transition: all 0.2s;
+    }
+
+    .philosophy-card:hover {
+      border-color: var(--border-light);
+      background: var(--bg-elevated);
+    }
+
+    .card-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-family: 'JetBrains Mono', monospace;
       font-size: 14px;
-      color: var(--muted2);
-      line-height: 1.5;
+      color: var(--cyan);
     }
 
-    .apply-spots {
-      display: inline-flex;
+    .philosophy-card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .philosophy-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* ========================================
+       WORKSTATION PREVIEW
+    ======================================== */
+    .workstation-preview {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .workstation-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .workstation-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .workstation-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      border-radius: 4px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .workstation-tab.active {
+      background: var(--bg-card);
+      color: var(--cyan);
+    }
+
+    .workstation-tab:hover:not(.active) {
+      color: var(--text-muted);
+    }
+
+    .workstation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .ws-panel {
+      background: var(--bg);
+      padding: 20px;
+    }
+
+    .ws-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .ws-panel-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .ws-panel-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: var(--cyan-glow);
+      color: var(--cyan);
+    }
+
+    .ws-metric {
+      margin-bottom: 12px;
+    }
+
+    .ws-metric-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .ws-metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .ws-metric-value.positive {
+      color: var(--green);
+    }
+
+    .ws-metric-value.amber {
+      color: var(--amber);
+    }
+
+    .ws-signal-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ws-signal {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg-surface);
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .ws-signal-name {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-secondary);
+    }
+
+    .ws-signal-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    .ws-signal-value.bullish {
+      color: var(--green);
+    }
+
+    .ws-signal-value.bearish {
+      color: var(--red);
+    }
+
+    .ws-signal-value.neutral {
+      color: var(--amber);
+    }
+
+    .risk-meter {
+      margin-top: 8px;
+    }
+
+    .risk-bar {
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .risk-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
+      border-radius: 3px;
+      transition: width 0.5s;
+    }
+
+    .ws-footer {
+      padding: 12px 24px;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ws-footer-note {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .execution-state {
+      display: flex;
       align-items: center;
       gap: 8px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      color: var(--yellow);
-      border: 1px solid rgba(240,180,41,0.2);
-      background: rgba(240,180,41,0.05);
-      padding: 4px 12px;
-      border-radius: 100px;
-      margin-bottom: 16px;
+      padding: 4px 10px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 4px;
+      color: var(--green);
     }
 
-    .form-grid {
+    /* ========================================
+       BUILD IN PUBLIC
+    ======================================== */
+    .build-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 56px;
+      text-align: center;
+    }
+
+    .build-section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .build-section p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+
+    .build-topics {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .build-topic {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+    }
+
+    /* ========================================
+       SOCIAL SECTION
+    ======================================== */
+    .social-grid {
       display: grid;
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
+    }
+
+    .social-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .social-card:hover {
+      border-color: var(--border-light);
+      background: var(--bg-elevated);
+      transform: translateY(-2px);
+    }
+
+    .social-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .social-card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .social-card p {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    /* ========================================
+       BETA APPLICATION FORM
+    ======================================== */
+    .beta-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .beta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    .beta-header {
+      padding: 48px 48px 0;
+      text-align: center;
+    }
+
+    .beta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 5px 12px;
+      background: var(--amber-glow);
+      border: 1px solid rgba(232, 169, 18, 0.2);
+      border-radius: 100px;
+      color: var(--amber);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .beta-header h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+
+    .beta-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .beta-form-wrapper {
+      padding: 40px 48px 48px;
+    }
+
+    .beta-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 560px;
+      margin: 0 auto;
     }
 
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 16px;
     }
 
     .form-group {
@@ -544,24 +900,24 @@
     }
 
     .form-group label {
-      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
       font-weight: 500;
-      color: var(--muted2);
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      font-family: 'JetBrains Mono', monospace;
     }
 
     .form-group input,
     .form-group select,
     .form-group textarea {
-      background: var(--surface);
+      background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
       padding: 12px 16px;
-      border-radius: 10px;
-      font-size: 14px;
+      border-radius: 8px;
       font-family: 'Inter', sans-serif;
+      font-size: 14px;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
       width: 100%;
@@ -570,600 +926,827 @@
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: rgba(0,212,255,0.4);
-      box-shadow: 0 0 0 3px rgba(0,212,255,0.06);
+      border-color: rgba(0, 200, 232, 0.4);
+      box-shadow: 0 0 0 3px var(--cyan-glow);
     }
 
     .form-group input::placeholder,
-    .form-group textarea::placeholder { color: var(--muted); }
+    .form-group textarea::placeholder {
+      color: var(--text-dim);
+    }
 
     .form-group select {
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234a5568' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 14px center;
       cursor: pointer;
     }
 
     .form-group select option {
-      background: #0d1117;
+      background: var(--bg);
     }
 
     .form-group textarea {
       resize: vertical;
-      min-height: 90px;
-      line-height: 1.5;
-    }
-
-    .form-group textarea.tall {
-      min-height: 120px;
+      min-height: 100px;
+      line-height: 1.6;
     }
 
     .btn-submit {
       width: 100%;
-      background: linear-gradient(135deg, var(--cyan), var(--green));
-      color: #000;
+      background: var(--cyan);
+      color: var(--bg-deep);
       border: none;
-      padding: 16px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
+      padding: 14px;
+      border-radius: 8px;
       font-family: 'Inter', sans-serif;
-      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
       margin-top: 8px;
-      letter-spacing: 0.01em;
     }
 
     .btn-submit:hover {
-      opacity: 0.92;
+      opacity: 0.9;
       transform: translateY(-1px);
-      box-shadow: 0 8px 32px rgba(0,212,255,0.2);
+      box-shadow: 0 8px 24px var(--cyan-glow);
     }
-
-    .btn-submit:active { transform: translateY(0); }
 
     .form-note {
-      text-align: center;
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 12px;
       font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
     }
 
-    /* Success state */
     .success-state {
       display: none;
       text-align: center;
-      padding: 32px 0 8px;
+      padding: 48px;
     }
 
     .success-icon {
-      font-size: 40px;
-      margin-bottom: 16px;
+      width: 56px;
+      height: 56px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 24px;
+      color: var(--green);
     }
 
     .success-state h3 {
       font-size: 20px;
-      font-weight: 700;
-      color: var(--green);
+      font-weight: 600;
+      color: var(--text);
       margin-bottom: 8px;
     }
 
     .success-state p {
       font-size: 14px;
-      color: var(--muted2);
+      color: var(--text-secondary);
       line-height: 1.6;
     }
 
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 24px 0 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 12px;
-      color: var(--muted);
+    .success-state a {
+      color: var(--cyan);
+      text-decoration: none;
     }
 
-    footer a {
-      color: var(--muted);
+    .success-state a:hover {
+      text-decoration: underline;
+    }
+
+    /* ========================================
+       FOOTER
+    ======================================== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-left {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: var(--text-muted);
       text-decoration: none;
       transition: color 0.2s;
     }
 
-    footer a:hover { color: var(--cyan); }
-
-    .social-links {
-      display: flex;
-      gap: 20px;
+    .footer-links a:hover {
+      color: var(--cyan);
     }
 
-    /* Responsive */
-    @media (max-width: 600px) {
-      .hero-frame { padding: 40px 24px 36px; }
-      .apply-section { padding: 28px 20px; }
-      .form-row { grid-template-columns: 1fr; }
-      .stats { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .stat { padding: 14px 10px; }
-      .stat-number { font-size: 22px; }
-      footer { flex-direction: column; gap: 12px; text-align: center; }
-      .hero-ctas { flex-direction: column; align-items: center; }
-      .nav-right .price-ticker { display: none; }
+    .footer-tagline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 16px;
+      text-align: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ========================================
+       RESPONSIVE
+    ======================================== */
+    @media (max-width: 1024px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 48px;
+        padding: 100px 0 60px;
+        min-height: auto;
+      }
+
+      .runtime-panel {
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      .philosophy-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .workstation-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .social-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-inner {
+        height: auto;
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .nav-left {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .status-badges {
+        display: none;
+      }
+
+      .hero {
+        padding: 80px 0 48px;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+      }
+
+      .btn-primary,
+      .btn-secondary {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .philosophy-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .beta-header,
+      .beta-form-wrapper {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .build-section {
+        padding: 40px 24px;
+      }
+
+      .social-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .social-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Trading background canvas -->
-  <canvas id="bgCanvas" width="1278" height="1268"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="vignette"></div>
 
-  <div class="container">
-
-    <nav>
-      <div class="logo">trion_ai</div>
+  <!-- ========================================
+       NAVIGATION
+  ======================================== -->
+  <nav>
+    <div class="nav-inner">
+      <div class="nav-left">
+        <a href="/" class="logo">TRION</a>
+        <div class="nav-links">
+          <a href="https://usetrion.com/blog/">Blog</a>
+          <a href="https://discord.gg/trion" target="_blank">Discord</a>
+          <a href="https://tiktok.com/@trionai0" target="_blank">TikTok</a>
+        </div>
+      </div>
       <div class="nav-right">
-        <div class="price-ticker">
-          BTC/USDT <span class="price-val" id="btcPrice">$84&nbsp;650</span>
+        <div class="status-badges">
+          <span class="status-badge readonly">Read Only</span>
+          <span class="status-badge paper">Paper Only</span>
+          <span class="status-badge risk">Risk Decides</span>
         </div>
-        <div class="status">
-          <div class="status-dot"></div>
-          building live
-        </div>
+        <a href="#beta" class="btn-beta">Beta Access</a>
       </div>
-    </nav>
+    </div>
+  </nav>
 
-    <!-- Hero -->
-    <div class="hero-frame">
-      <div class="frame-corner tl"></div>
-      <div class="frame-corner tr"></div>
-      <div class="frame-corner bl"></div>
-      <div class="frame-corner br"></div>
-
-      <section class="hero">
-        <div class="badge">
-          <span class="badge-dot"></span>
-          Beta Applications Open
-        </div>
-        <h1>An AI that<br><span>trades crypto.</span></h1>
+  <!-- ========================================
+       HERO SECTION
+  ======================================== -->
+  <div class="container">
+    <section class="hero">
+      <div class="hero-content">
+        <h1>AI trading infrastructure.<br><span>Deterministic by design.</span></h1>
         <p class="subtitle">
-          3 specialized AI agents — Analyst, Strategist, Decision — collaborating in real time on BTC/USDT. Built live, in public.
+          TRION separates AI reasoning, validation, independent risk authority, and execution boundaries into one transparent paper-trading workstation.
         </p>
-
-        <div class="spot-counter">
-          <span>Beta spots:</span>
-          <div class="spot-bar"><div class="spot-fill"></div></div>
-          <span style="color: var(--cyan)">12 / 50 claimed</span>
-        </div>
-
         <div class="hero-ctas">
-          <a href="https://usetrion.com/#apply" class="btn-apply">Apply for Beta →</a>
-          <a href="https://tiktok.com/@trionai0" target="_blank" class="btn-secondary">↗ Watch the build</a>
-        </div>
-      </section>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-number">3</div>
-        <div class="stat-label">AI Agents</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">1</div>
-        <div class="stat-label">Decision</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">BTC Watch</div>
-      </div>
-    </div>
-
-    <!-- Mini chart -->
-    <div class="mini-chart-wrap">
-      <div class="chart-header">
-        <span class="chart-title">BTC/USDT · Signal Pipeline</span>
-        <span class="chart-badge">● LIVE SIMULATION</span>
-      </div>
-      <canvas id="miniChart" width="904" height="90"></canvas>
-    </div>
-
-    <!-- Pipeline -->
-    <p class="section-label">Event flow</p>
-    <div class="pipeline">
-      <div class="pipe-step active" style="opacity: 1; transform: translateY(-1px);">market_tick</div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step active" style="opacity: 0.4; transform: none;">features</div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step active" style="opacity: 0.4; transform: none;">analyst</div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step active" style="opacity: 0.4; transform: none;">strategist</div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step active" style="opacity: 0.4; transform: none;">decision</div>
-      <div class="pipe-arrow">→</div>
-      <div class="pipe-step signal" style="opacity: 0.4; transform: none;">signal ✓</div>
-    </div>
-
-    <!-- Features -->
-    <div class="features">
-      <div class="feature">
-        <div class="feature-icon">🧠</div>
-        <div>
-          <div class="feature-title">Multi-agent AI</div>
-          <div class="feature-desc">Three specialized Claude AI agents pass analysis through a Redis event pipeline — each with one job, zero overlap.</div>
+          <a href="#beta" class="btn-primary">Apply for Beta</a>
+          <a href="https://usetrion.com/blog/" class="btn-secondary">Read Build Log</a>
+          <a href="https://discord.gg/trion" target="_blank" class="btn-secondary">Join Discord</a>
         </div>
       </div>
-      <div class="feature">
-        <div class="feature-icon">⚡</div>
-        <div>
-          <div class="feature-title">Event-driven architecture</div>
-          <div class="feature-desc">Redis Streams as the backbone. Every market tick, every signal, every decision is an event. No polling. No blocking.</div>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🛡️</div>
-        <div>
-          <div class="feature-title">Risk engine overrides AI</div>
-          <div class="feature-desc">When the AI wants to trade and the risk engine says no — the risk engine wins. Always.</div>
-        </div>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">🔴</div>
-        <div>
-          <div class="feature-title">Built live in public</div>
-          <div class="feature-desc">Every line of code, every bug, every decision documented on TikTok and YouTube. Follow the full build at @trion_ai.</div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Beta Application Form -->
-    <div class="apply-section" id="apply">
-      <div class="apply-header">
-        <div class="apply-spots">⚡ 38 spots remaining</div>
-        <h2>Apply for Beta Access</h2>
-        <p>We're selecting a small group of testers. Tell us about yourself — we'll hand-pick who gets in first.</p>
-      </div>
-
-      <form class="form-grid" id="applyForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label>First Name</label>
-            <input type="text" placeholder="Alex" required="">
-          </div>
-          <div class="form-group">
-            <label>Email</label>
-            <input type="email" placeholder="you@email.com" required="" id="applyEmail">
+      <div class="runtime-panel">
+        <div class="panel-header">
+          <span class="panel-title">Runtime Pipeline</span>
+          <div class="panel-status">
+            <span class="status-dot"></span>
+            <span>OPERATIONAL</span>
           </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Trading experience</label>
-            <select required="">
-              <option value="" disabled="" selected="">Select level</option>
-              <option value="beginner">Beginner — just learning</option>
-              <option value="intermediate">Intermediate — traded 1–2 years</option>
-              <option value="advanced">Advanced — 3+ years, profitable</option>
-              <option value="pro">Professional — full-time trader</option>
-              <option value="dev">Developer — building trading tools</option>
-            </select>
+        <div class="pipeline-flow">
+          <div class="pipeline-stage" data-stage="0">
+            <div class="stage-indicator complete">01</div>
+            <div class="stage-content">
+              <span class="stage-name">market_tick</span>
+              <div class="stage-meta">
+                <span class="latency">12ms</span>
+                <div class="confidence-bar"><div class="confidence-fill" style="width: 100%"></div></div>
+              </div>
+            </div>
           </div>
-          <div class="form-group">
-            <label>What do you trade?</label>
-            <select required="">
-              <option value="" disabled="" selected="">Select market</option>
-              <option value="crypto-spot">Crypto — Spot</option>
-              <option value="crypto-futures">Crypto — Futures/Derivatives</option>
-              <option value="stocks">Stocks / Equities</option>
-              <option value="forex">Forex</option>
-              <option value="multiple">Multiple markets</option>
-              <option value="none">Nothing yet, learning</option>
-            </select>
+          <div class="pipeline-stage" data-stage="1">
+            <div class="stage-indicator complete">02</div>
+            <div class="stage-content">
+              <span class="stage-name">clean_data</span>
+              <div class="stage-meta">
+                <span class="latency">8ms</span>
+                <div class="confidence-bar"><div class="confidence-fill" style="width: 100%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="pipeline-stage" data-stage="2">
+            <div class="stage-indicator complete">03</div>
+            <div class="stage-content">
+              <span class="stage-name">features_ready</span>
+              <div class="stage-meta">
+                <span class="latency">24ms</span>
+                <div class="confidence-bar"><div class="confidence-fill" style="width: 100%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="pipeline-stage" data-stage="3">
+            <div class="stage-indicator active">04</div>
+            <div class="stage-content">
+              <span class="stage-name">analysis_ready</span>
+              <div class="stage-meta">
+                <span class="latency">156ms</span>
+                <div class="confidence-bar"><div class="confidence-fill" style="width: 87%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="pipeline-stage" data-stage="4">
+            <div class="stage-indicator pending">05</div>
+            <div class="stage-content">
+              <span class="stage-name">strategy_ready</span>
+              <div class="stage-meta">
+                <span class="latency">--</span>
+                <div class="confidence-bar"><div class="confidence-fill" style="width: 0%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="pipeline-stage" data-stage="5">
+            <div class="stage-indicator pending">06</div>
+            <div class="stage-content">
+              <span class="stage-name">risk_validation</span>
+              <div class="stage-meta">
+                <span class="latency">--</span>
+                <div class="confidence-bar"><div class="confidence-fill" style="width: 0%"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="pipeline-stage" data-stage="6">
+            <div class="stage-indicator pending">07</div>
+            <div class="stage-content">
+              <span class="stage-name">paper_order</span>
+              <div class="stage-meta">
+                <span class="stage-badge paper-only">Paper Only</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
+         SYSTEM PHILOSOPHY
+    ======================================== -->
+    <section id="philosophy">
+      <div class="section-header">
+        <div class="section-label">System Philosophy</div>
+        <h2 class="section-title">Constrained Intelligence</h2>
+        <p class="section-subtitle">
+          TRION was designed around constrained intelligence rather than unrestricted AI autonomy. Every decision passes through multiple validation gates.
+        </p>
+      </div>
+
+      <div class="philosophy-grid">
+        <div class="philosophy-card">
+          <div class="card-icon">//</div>
+          <h3>Deterministic Validation</h3>
+          <p>Every AI output is validated against deterministic rules before execution. No ambiguity in the decision chain.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="card-icon">!!</div>
+          <h3>Independent Risk Authority</h3>
+          <p>Risk engine operates independently of AI reasoning. When risk says no, the system stops. No exceptions.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="card-icon">{}</div>
+          <h3>Constrained AI Outputs</h3>
+          <p>AI generates structured, typed outputs within strict boundaries. No freeform responses in critical paths.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="card-icon">&gt;_</div>
+          <h3>Observability First</h3>
+          <p>Every decision, every signal, every state change is logged and traceable. Full transparency by default.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="card-icon">[]</div>
+          <h3>Runtime Traceability</h3>
+          <p>Complete audit trail from market tick to paper order. Replay any decision with full context.</p>
+        </div>
+        <div class="philosophy-card">
+          <div class="card-icon">X</div>
+          <h3>Fail-Closed Execution</h3>
+          <p>Any failure in the pipeline halts execution. The system never proceeds with incomplete validation.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
+         WORKSTATION PREVIEW
+    ======================================== -->
+    <section id="workstation">
+      <div class="section-header">
+        <div class="section-label">Inside the System</div>
+        <h2 class="section-title">Workstation Preview</h2>
+        <p class="section-subtitle">
+          A glimpse into the TRION control interface. Every panel reflects real system state.
+        </p>
+      </div>
+
+      <div class="workstation-preview">
+        <div class="workstation-header">
+          <div class="workstation-tabs">
+            <span class="workstation-tab active">Overview</span>
+            <span class="workstation-tab">AI Decision</span>
+            <span class="workstation-tab">Risk Manager</span>
+            <span class="workstation-tab">Execution</span>
+          </div>
+          <div class="panel-status">
+            <span class="status-dot"></span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--green);">PAPER MODE</span>
           </div>
         </div>
 
-        <div class="form-group">
-          <label>Why do you want to test Trion?</label>
-          <textarea class="tall" placeholder="What problem are you trying to solve? What would you actually test and give feedback on?" required=""></textarea>
+        <div class="workstation-grid">
+          <div class="ws-panel">
+            <div class="ws-panel-header">
+              <span class="ws-panel-title">AI Decision</span>
+              <span class="ws-panel-badge">Live</span>
+            </div>
+            <div class="ws-metric">
+              <div class="ws-metric-label">Current Bias</div>
+              <div class="ws-metric-value positive">BULLISH</div>
+            </div>
+            <div class="ws-metric">
+              <div class="ws-metric-label">Confidence</div>
+              <div class="ws-metric-value">0.73</div>
+            </div>
+            <div class="ws-signal-list">
+              <div class="ws-signal">
+                <span class="ws-signal-name">momentum</span>
+                <span class="ws-signal-value bullish">+0.42</span>
+              </div>
+              <div class="ws-signal">
+                <span class="ws-signal-name">volatility</span>
+                <span class="ws-signal-value neutral">0.18</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ws-panel">
+            <div class="ws-panel-header">
+              <span class="ws-panel-title">Risk Manager</span>
+              <span class="ws-panel-badge">Active</span>
+            </div>
+            <div class="ws-metric">
+              <div class="ws-metric-label">Position Size</div>
+              <div class="ws-metric-value">2.4%</div>
+            </div>
+            <div class="ws-metric">
+              <div class="ws-metric-label">Max Drawdown</div>
+              <div class="ws-metric-value amber">-5.2%</div>
+            </div>
+            <div class="risk-meter">
+              <div class="ws-metric-label">Risk Level</div>
+              <div class="risk-bar">
+                <div class="risk-fill" style="width: 35%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="ws-panel">
+            <div class="ws-panel-header">
+              <span class="ws-panel-title">Execution State</span>
+              <span class="ws-panel-badge">Ready</span>
+            </div>
+            <div class="ws-metric">
+              <div class="ws-metric-label">Mode</div>
+              <div class="ws-metric-value positive">PAPER</div>
+            </div>
+            <div class="ws-metric">
+              <div class="ws-metric-label">Pending Orders</div>
+              <div class="ws-metric-value">0</div>
+            </div>
+            <div class="ws-signal-list">
+              <div class="ws-signal">
+                <span class="ws-signal-name">last_signal</span>
+                <span class="ws-signal-value neutral">HOLD</span>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label>Social handle <span style="color:var(--muted); font-weight:400">(optional — TikTok, X, YouTube)</span></label>
-          <input type="text" placeholder="@yourhandle">
+        <div class="ws-footer">
+          <span class="ws-footer-note">// All data shown is simulated for demonstration</span>
+          <div class="execution-state">
+            <span class="status-dot"></span>
+            Paper Execution Only
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
+         BUILD IN PUBLIC
+    ======================================== -->
+    <section id="build">
+      <div class="build-section">
+        <div class="section-label">Transparency</div>
+        <h2>Building TRION in public.</h2>
+        <p>
+          Follow along as we build, break, and rebuild. Architecture discussions, AI infrastructure research, runtime engineering, constrained cognition experiments, verification systems, and observability patterns.
+        </p>
+        <div class="build-topics">
+          <span class="build-topic">architecture</span>
+          <span class="build-topic">ai-infrastructure</span>
+          <span class="build-topic">runtime-engineering</span>
+          <span class="build-topic">constrained-cognition</span>
+          <span class="build-topic">verification-systems</span>
+          <span class="build-topic">observability</span>
+        </div>
+        <a href="https://usetrion.com/blog/" class="btn-primary">Read the Build Log</a>
+      </div>
+    </section>
+
+    <!-- ========================================
+         SOCIAL / VIDEO SECTION
+    ======================================== -->
+    <section id="social">
+      <div class="section-header">
+        <div class="section-label">Follow the Journey</div>
+        <h2 class="section-title">Public Build Content</h2>
+        <p class="section-subtitle">
+          Follow the public build journey, architecture breakdowns, runtime experiments, and AI infrastructure research.
+        </p>
+      </div>
+
+      <div class="social-grid">
+        <a href="https://tiktok.com/@trionai0" target="_blank" class="social-card">
+          <div class="social-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+            </svg>
+          </div>
+          <h3>TikTok</h3>
+          <p>@trionai0</p>
+        </a>
+        <a href="https://discord.gg/trion" target="_blank" class="social-card">
+          <div class="social-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+          </div>
+          <h3>Discord</h3>
+          <p>Join Community</p>
+        </a>
+        <a href="https://youtube.com/@UseTrionAI" target="_blank" class="social-card">
+          <div class="social-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+            </svg>
+          </div>
+          <h3>YouTube</h3>
+          <p>Coming Soon</p>
+        </a>
+        <a href="https://twitter.com/TrionAI161554" target="_blank" class="social-card">
+          <div class="social-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </div>
+          <h3>X / Twitter</h3>
+          <p>@TrionAI</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- ========================================
+         BETA APPLICATION
+    ======================================== -->
+    <section id="beta">
+      <div class="beta-section">
+        <div class="beta-header">
+          <div class="beta-badge">Selective Access</div>
+          <h2>Apply for Beta</h2>
+          <p>We are hand-selecting a small group of testers who understand infrastructure-first approaches to AI trading systems.</p>
         </div>
 
-        <button type="submit" class="btn-submit">Submit Beta Application →</button>
-        <p class="form-note">// We'll review applications and reach out directly. No spam.</p>
-      </form>
+        <div class="beta-form-wrapper">
+          <form class="beta-form" id="betaForm" name="beta-application" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+            <input type="hidden" name="form-name" value="beta-application">
+            <p style="display:none">
+              <label>Do not fill this out: <input name="bot-field"></label>
+            </p>
 
-      <div class="success-state" id="successState">
-        <div class="success-icon">✅</div>
-        <h3>Application received.</h3>
-        <p>We'll review your application and reach out when beta opens.<br>Follow the build live at <a href="https://tiktok.com/@trion_ai" target="_blank" style="color:var(--cyan)">@trion_ai</a>.</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" placeholder="Alex" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="you@email.com" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="experience">Trading Experience</label>
+                <select id="experience" name="experience" required>
+                  <option value="" disabled selected>Select level</option>
+                  <option value="beginner">Beginner - just learning</option>
+                  <option value="intermediate">Intermediate - 1-2 years</option>
+                  <option value="advanced">Advanced - 3+ years</option>
+                  <option value="professional">Professional - full-time</option>
+                  <option value="developer">Developer - building tools</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="market">Primary Market</label>
+                <select id="market" name="market" required>
+                  <option value="" disabled selected>Select market</option>
+                  <option value="crypto-spot">Crypto - Spot</option>
+                  <option value="crypto-futures">Crypto - Futures</option>
+                  <option value="stocks">Stocks / Equities</option>
+                  <option value="forex">Forex</option>
+                  <option value="multiple">Multiple Markets</option>
+                  <option value="none">Learning / None yet</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="reason">Why do you want access to TRION?</label>
+              <textarea id="reason" name="reason" placeholder="What interests you about infrastructure-first AI trading? What would you test and provide feedback on?" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="social">Social / Profile Link <span style="font-weight: 400; color: var(--text-dim);">(optional)</span></label>
+              <input type="text" id="social" name="social" placeholder="https://twitter.com/yourhandle">
+            </div>
+
+            <button type="submit" class="btn-submit">Submit Application</button>
+            <p class="form-note">// Applications reviewed manually. No spam, ever.</p>
+          </form>
+
+          <div class="success-state" id="successState">
+            <div class="success-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <h3>Application Received</h3>
+            <p>We will review your application and reach out when beta access opens.<br>Follow the build at <a href="https://tiktok.com/@trionai0" target="_blank">@trionai0</a>.</p>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <footer>
-      <span>© 2026 Trion. Building in public.</span>
-      <div class="social-links">
-        <a href="https://tiktok.com/@trion_ai" target="_blank">TikTok</a>
-        <a href="https://youtube.com/@UseTrionAI" target="_blank">YouTube</a>
-        <a href="https://twitter.com/TrionAI161554" target="_blank">X</a>
-        <a href="https://instagram.com/trionai" target="_blank">Instagram</a>
-      </div>
-    </footer>
-
+    </section>
   </div>
+
+  <!-- ========================================
+       FOOTER
+  ======================================== -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span class="logo" style="font-size: 14px;">TRION</span>
+        </div>
+        <div class="footer-links">
+          <a href="https://usetrion.com/blog/">Blog</a>
+          <a href="https://discord.gg/trion" target="_blank">Discord</a>
+          <a href="https://tiktok.com/@trionai0" target="_blank">TikTok</a>
+          <a href="https://youtube.com/@UseTrionAI" target="_blank">YouTube</a>
+          <a href="https://twitter.com/TrionAI161554" target="_blank">X</a>
+        </div>
+      </div>
+      <div class="footer-tagline">
+        &copy; 2026 TRION — AI assists. Risk protects. Humans remain the final authority.
+      </div>
+    </div>
+  </footer>
 
   <script>
     /* =============================================
-       BACKGROUND TRADING CHART CANVAS
-    ============================================= */
-    const bgCanvas = document.getElementById('bgCanvas');
-    const bgCtx = bgCanvas.getContext('2d');
-
-    function resizeBg() {
-      bgCanvas.width = window.innerWidth;
-      bgCanvas.height = window.innerHeight;
-    }
-    resizeBg();
-    window.addEventListener('resize', resizeBg);
-
-    // Generate price data
-    const numPoints = 120;
-    let bgPrices = [];
-    let bgBase = 0.5;
-    for (let i = 0; i < numPoints; i++) {
-      bgBase += (Math.random() - 0.49) * 0.02;
-      bgBase = Math.max(0.1, Math.min(0.9, bgBase));
-      bgPrices.push(bgBase);
-    }
-
-    let bgOffset = 0;
-
-    function drawBg() {
-      const w = bgCanvas.width;
-      const h = bgCanvas.height;
-      bgCtx.clearRect(0, 0, w, h);
-
-      bgOffset += 0.3;
-      if (bgOffset > (w / numPoints)) {
-        bgOffset = 0;
-        bgPrices.shift();
-        const last = bgPrices[bgPrices.length - 1];
-        const next = last + (Math.random() - 0.49) * 0.025;
-        bgPrices.push(Math.max(0.1, Math.min(0.9, next)));
-      }
-
-      const stepX = w / (numPoints - 1);
-      const padY = h * 0.15;
-      const rangeY = h - padY * 2;
-
-      // Price line glow
-      bgCtx.save();
-      bgCtx.shadowBlur = 12;
-      bgCtx.shadowColor = 'rgba(0, 212, 255, 0.5)';
-      bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.7)';
-      bgCtx.lineWidth = 1.5;
-      bgCtx.beginPath();
-      bgPrices.forEach((p, i) => {
-        const x = i * stepX - bgOffset;
-        const y = padY + (1 - p) * rangeY;
-        i === 0 ? bgCtx.moveTo(x, y) : bgCtx.lineTo(x, y);
-      });
-      bgCtx.stroke();
-      bgCtx.restore();
-
-      // Filled area under chart
-      bgCtx.save();
-      const grad = bgCtx.createLinearGradient(0, padY, 0, h);
-      grad.addColorStop(0, 'rgba(0, 212, 255, 0.08)');
-      grad.addColorStop(1, 'rgba(0, 212, 255, 0)');
-      bgCtx.fillStyle = grad;
-      bgCtx.beginPath();
-      bgPrices.forEach((p, i) => {
-        const x = i * stepX - bgOffset;
-        const y = padY + (1 - p) * rangeY;
-        i === 0 ? bgCtx.moveTo(x, y) : bgCtx.lineTo(x, y);
-      });
-      bgCtx.lineTo((numPoints - 1) * stepX - bgOffset, h);
-      bgCtx.lineTo(0 - bgOffset, h);
-      bgCtx.closePath();
-      bgCtx.fill();
-      bgCtx.restore();
-
-      // Candlestick markers (every ~10 points)
-      bgCtx.save();
-      for (let i = 5; i < numPoints - 1; i += 10) {
-        const x = i * stepX - bgOffset;
-        if (x < -20 || x > w + 20) continue;
-        const y = padY + (1 - bgPrices[i]) * rangeY;
-        const isGreen = bgPrices[i] > bgPrices[i - 1];
-        const color = isGreen ? 'rgba(0,255,136,0.4)' : 'rgba(255,59,92,0.4)';
-        const bodyH = Math.abs(bgPrices[i] - bgPrices[i - 1]) * rangeY * 4 + 6;
-        bgCtx.fillStyle = color;
-        bgCtx.fillRect(x - 3, y - bodyH / 2, 6, bodyH);
-        // Wicks
-        bgCtx.strokeStyle = color;
-        bgCtx.lineWidth = 1;
-        bgCtx.beginPath();
-        bgCtx.moveTo(x, y - bodyH / 2 - 6);
-        bgCtx.lineTo(x, y + bodyH / 2 + 6);
-        bgCtx.stroke();
-      }
-      bgCtx.restore();
-
-      // Horizontal price levels
-      bgCtx.save();
-      bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.06)';
-      bgCtx.lineWidth = 1;
-      bgCtx.setLineDash([4, 8]);
-      [0.25, 0.5, 0.75].forEach(level => {
-        const y = padY + (1 - level) * rangeY;
-        bgCtx.beginPath();
-        bgCtx.moveTo(0, y);
-        bgCtx.lineTo(w, y);
-        bgCtx.stroke();
-      });
-      bgCtx.restore();
-
-      requestAnimationFrame(drawBg);
-    }
-    drawBg();
-
-
-    /* =============================================
-       MINI CHART (signal pipeline visual)
-    ============================================= */
-    const mc = document.getElementById('miniChart');
-    const mCtx = mc.getContext('2d');
-
-    function resizeMini() {
-      mc.width = mc.offsetWidth * window.devicePixelRatio;
-      mc.height = 60 * window.devicePixelRatio;
-      mCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    }
-    resizeMini();
-    window.addEventListener('resize', resizeMini);
-
-    let miniPrices = [];
-    let miniBase = 0.5;
-    for (let i = 0; i < 80; i++) {
-      miniBase += (Math.random() - 0.49) * 0.03;
-      miniBase = Math.max(0.1, Math.min(0.9, miniBase));
-      miniPrices.push(miniBase);
-    }
-
-    // Signal markers
-    let signals = [];
-    function addSignal() {
-      const lastIdx = miniPrices.length - 1;
-      if (lastIdx > 5) {
-        const isBuy = Math.random() > 0.45;
-        signals.push({ idx: lastIdx, type: isBuy ? 'buy' : 'sell', age: 0 });
-      }
-      if (signals.length > 5) signals.shift();
-    }
-
-    let miniOffset = 0;
-    let miniFrame = 0;
-
-    function drawMini() {
-      const W = mc.offsetWidth;
-      const H = 60;
-      mCtx.clearRect(0, 0, W, H);
-
-      miniOffset += 0.5;
-      miniFrame++;
-
-      if (miniOffset > (W / miniPrices.length)) {
-        miniOffset = 0;
-        miniBase += (Math.random() - 0.49) * 0.03;
-        miniBase = Math.max(0.1, Math.min(0.9, miniBase));
-        miniPrices.push(miniBase);
-        if (miniPrices.length > 120) miniPrices.shift();
-        if (Math.random() < 0.15) addSignal();
-      }
-
-      const stepX = W / (miniPrices.length - 1);
-      const padY = 8;
-      const rangeY = H - padY * 2;
-
-      // Line
-      const grad = mCtx.createLinearGradient(0, 0, W, 0);
-      grad.addColorStop(0, 'rgba(0,212,255,0.2)');
-      grad.addColorStop(1, 'rgba(0,212,255,1)');
-      mCtx.strokeStyle = grad;
-      mCtx.lineWidth = 1.5;
-      mCtx.beginPath();
-      miniPrices.forEach((p, i) => {
-        const x = i * stepX - miniOffset;
-        const y = padY + (1 - p) * rangeY;
-        i === 0 ? mCtx.moveTo(x, y) : mCtx.lineTo(x, y);
-      });
-      mCtx.stroke();
-
-      // Signal dots
-      signals.forEach(sig => {
-        sig.age++;
-        const idx = miniPrices.length - 1 - (miniPrices.length - sig.idx);
-        if (idx < 0 || idx >= miniPrices.length) return;
-        const x = idx * stepX - miniOffset;
-        const y = padY + (1 - miniPrices[idx]) * rangeY;
-        const color = sig.type === 'buy' ? '#00ff88' : '#ff3b5c';
-        const alpha = Math.max(0, 1 - sig.age / 80);
-        mCtx.fillStyle = color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
-        mCtx.beginPath();
-        mCtx.arc(x, y + (sig.type === 'buy' ? 6 : -6), 3, 0, Math.PI * 2);
-        mCtx.fillStyle = sig.type === 'buy'
-          ? `rgba(0,255,136,${alpha})`
-          : `rgba(255,59,92,${alpha})`;
-        mCtx.fill();
-      });
-
-      // Live dot
-      const lastX = (miniPrices.length - 1) * stepX - miniOffset;
-      const lastY = padY + (1 - miniPrices[miniPrices.length - 1]) * rangeY;
-      const rippleAlpha = 0.3 + 0.3 * Math.sin(miniFrame * 0.15);
-      mCtx.beginPath();
-      mCtx.arc(lastX, lastY, 7, 0, Math.PI * 2);
-      mCtx.fillStyle = `rgba(0,212,255,${rippleAlpha * 0.3})`;
-      mCtx.fill();
-      mCtx.beginPath();
-      mCtx.arc(lastX, lastY, 3, 0, Math.PI * 2);
-      mCtx.fillStyle = '#00d4ff';
-      mCtx.fill();
-
-      requestAnimationFrame(drawMini);
-    }
-    drawMini();
-
-
-    /* =============================================
-       FAKE BTC PRICE TICKER
-    ============================================= */
-    let btcPrice = 84231;
-    setInterval(() => {
-      btcPrice += Math.floor((Math.random() - 0.49) * 80);
-      document.getElementById('btcPrice').textContent = '$' + btcPrice.toLocaleString();
-    }, 1800);
-
-
-    /* =============================================
        PIPELINE ANIMATION
     ============================================= */
-    const pipeSteps = document.querySelectorAll('.pipe-step.active, .pipe-step.signal');
-    let activePipeIdx = 0;
-    setInterval(() => {
-      pipeSteps.forEach((s, i) => {
-        s.style.opacity = i === activePipeIdx ? '1' : '0.4';
-        s.style.transform = i === activePipeIdx ? 'translateY(-1px)' : 'none';
-      });
-      activePipeIdx = (activePipeIdx + 1) % pipeSteps.length;
-    }, 700);
+    const stages = document.querySelectorAll('.pipeline-stage');
+    const latencies = ['12ms', '8ms', '24ms', '156ms', '89ms', '34ms', '2ms'];
+    const confidences = [100, 100, 100, 87, 92, 78, 100];
+    let currentStage = 0;
 
+    function animatePipeline() {
+      stages.forEach((stage, index) => {
+        const indicator = stage.querySelector('.stage-indicator');
+        const latencyEl = stage.querySelector('.latency');
+        const confidenceFill = stage.querySelector('.confidence-fill');
+
+        if (index < currentStage) {
+          indicator.className = 'stage-indicator complete';
+          if (latencyEl) latencyEl.textContent = latencies[index];
+          if (confidenceFill) confidenceFill.style.width = '100%';
+        } else if (index === currentStage) {
+          indicator.className = 'stage-indicator active';
+          if (latencyEl) latencyEl.textContent = latencies[index];
+          if (confidenceFill) confidenceFill.style.width = confidences[index] + '%';
+        } else {
+          indicator.className = 'stage-indicator pending';
+          if (latencyEl) latencyEl.textContent = '--';
+          if (confidenceFill) confidenceFill.style.width = '0%';
+        }
+      });
+
+      currentStage++;
+      if (currentStage > stages.length) {
+        currentStage = 0;
+      }
+    }
+
+    setInterval(animatePipeline, 1200);
 
     /* =============================================
-       APPLY FORM
+       WORKSTATION DATA SIMULATION
     ============================================= */
-    document.getElementById('applyForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const email = document.getElementById('applyEmail').value;
-      // TODO: wire up to your backend / email service
-      console.log('Beta application submitted:', email);
-      document.getElementById('applyForm').style.display = 'none';
-      document.getElementById('successState').style.display = 'block';
-    });
+    const biases = ['BULLISH', 'BEARISH', 'NEUTRAL'];
+    const biasColors = ['positive', '', 'amber'];
 
-    // Smooth scroll for apply button
-    document.querySelectorAll('a[href="#apply"]').forEach(a => {
-      a.addEventListener('click', e => {
+    function updateWorkstation() {
+      // Update confidence
+      const confidence = (0.5 + Math.random() * 0.4).toFixed(2);
+      const confEl = document.querySelector('.ws-panel:first-child .ws-metric:nth-child(3) .ws-metric-value');
+      if (confEl) confEl.textContent = confidence;
+
+      // Update signals
+      const momentum = (Math.random() * 0.8 - 0.2).toFixed(2);
+      const volatility = (Math.random() * 0.3).toFixed(2);
+
+      const momentumEl = document.querySelector('.ws-signal:first-child .ws-signal-value');
+      const volEl = document.querySelector('.ws-signal:nth-child(2) .ws-signal-value');
+
+      if (momentumEl) {
+        momentumEl.textContent = (momentum >= 0 ? '+' : '') + momentum;
+        momentumEl.className = 'ws-signal-value ' + (momentum > 0.1 ? 'bullish' : momentum < -0.1 ? 'bearish' : 'neutral');
+      }
+
+      if (volEl) {
+        volEl.textContent = volatility;
+        volEl.className = 'ws-signal-value neutral';
+      }
+
+      // Update risk
+      const riskLevel = Math.random() * 60 + 10;
+      const riskFill = document.querySelector('.risk-fill');
+      if (riskFill) riskFill.style.width = riskLevel + '%';
+    }
+
+    setInterval(updateWorkstation, 3000);
+
+    /* =============================================
+       SMOOTH SCROLL
+    ============================================= */
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
         e.preventDefault();
-        document.getElementById('apply').scrollIntoView({ behavior: 'smooth' });
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
       });
     });
+
+    /* =============================================
+       FORM HANDLING (Netlify Forms)
+    ============================================= */
+    const betaForm = document.getElementById('betaForm');
+    const successState = document.getElementById('successState');
+
+    if (betaForm) {
+      betaForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(betaForm);
+
+        fetch('/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData).toString()
+        })
+        .then(() => {
+          betaForm.style.display = 'none';
+          successState.style.display = 'block';
+        })
+        .catch((error) => {
+          console.error('Form submission error:', error);
+          alert('There was an error submitting your application. Please try again.');
+        });
+      });
+    }
   </script>
 
-
-</body></html>
+</body>
+</html>
