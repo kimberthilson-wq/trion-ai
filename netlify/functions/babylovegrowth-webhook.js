@@ -27,7 +27,10 @@ function extractArticleData(payload) {
     null;
 
   if (nested && typeof nested === "object" && !Array.isArray(nested)) {
-    return { ...nested, _event: payload.event || payload.action || payload.type };
+    return {
+      ...nested,
+      _event: payload.event || payload.action || payload.type,
+    };
   }
 
   return payload;
@@ -51,8 +54,12 @@ function normalizeArticle(raw) {
     raw.bodyHtml ||
     raw.body_html ||
     raw.full_content ||
+    raw.fullContent ||
     raw.articleBody ||
     raw.article_body ||
+    raw.article_html ||
+    raw.articleHtml ||
+    raw.markdown ||
     raw.text ||
     "";
 
@@ -64,6 +71,7 @@ function normalizeArticle(raw) {
     raw.meta_description ||
     raw.metaDescription ||
     raw.short_description ||
+    raw.shortDescription ||
     "";
 
   const featuredImage =
@@ -75,9 +83,13 @@ function normalizeArticle(raw) {
     raw.coverImage ||
     raw.cover_image ||
     raw.thumbnail ||
+    raw.thumbnail_url ||
+    raw.thumbnailUrl ||
     raw.banner ||
     raw.hero_image ||
+    raw.heroImage ||
     raw.og_image ||
+    raw.ogImage ||
     "";
 
   const publishDate =
@@ -125,8 +137,9 @@ async function githubRequest(url, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    const errorMsg = `GitHub API error: ${response.status} ${response.statusText} — ${JSON.stringify(data)}`;
-    throw new Error(errorMsg);
+    throw new Error(
+      `GitHub API error: ${response.status} ${response.statusText} — ${JSON.stringify(data)}`
+    );
   }
 
   return data;
@@ -156,12 +169,14 @@ exports.handler = async (event) => {
 
     const rawBody = event.body || "{}";
     const payload = JSON.parse(rawBody);
+
     console.log("[webhook] Incoming payload keys:", Object.keys(payload));
     console.log("[webhook] === FULL INCOMING PAYLOAD START ===");
     console.log(JSON.stringify(payload, null, 2));
     console.log("[webhook] === FULL INCOMING PAYLOAD END ===");
 
     const articleData = extractArticleData(payload);
+
     console.log("[webhook] Extracted article data keys:", Object.keys(articleData));
     console.log("[webhook] === EXTRACTED ARTICLE DATA START ===");
     console.log(JSON.stringify(articleData, null, 2));
@@ -182,19 +197,14 @@ exports.handler = async (event) => {
     const currentFile = await githubRequest(fileUrl);
     console.log("[webhook] GitHub fetch status: OK, sha:", currentFile.sha);
 
-    const decodedContent = Buffer.from(
-      currentFile.content,
-      "base64"
-    ).toString("utf8");
-
+    const decodedContent = Buffer.from(currentFile.content, "base64").toString("utf8");
     const blogData = JSON.parse(decodedContent);
 
     if (!Array.isArray(blogData.articles)) {
       blogData.articles = [];
     }
 
-    const existingCount = blogData.articles.length;
-    console.log("[webhook] Existing article count:", existingCount);
+    console.log("[webhook] Existing article count:", blogData.articles.length);
 
     const existingIndex = blogData.articles.findIndex(
       (article) => article.id === newArticle.id
@@ -227,7 +237,10 @@ exports.handler = async (event) => {
       }
     );
 
-    console.log("[webhook] GitHub commit status: OK, new sha:", commitResult.content?.sha);
+    console.log(
+      "[webhook] GitHub commit status: OK, new sha:",
+      commitResult.content?.sha
+    );
     console.log("[webhook] Final saved article count:", blogData.articles.length);
 
     return {
@@ -255,4 +268,5 @@ exports.handler = async (event) => {
       }),
     };
   }
+};
 };
