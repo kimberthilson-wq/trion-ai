@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trion — Blog</title>
+  <meta name="description" content="">
+
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="">
+  <meta property="og:description" content="">
+  <meta property="og:image" content="">
+  <meta property="og:url" content="">
+  <meta property="og:site_name" content="Trion">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@trion_ai">
+  <meta name="twitter:title" content="">
+  <meta name="twitter:description" content="">
+  <meta name="twitter:image" content="">
+
+  <link rel="canonical" href="https://usetrion.com/blog">
+
+  <script type="application/ld+json" id="articleSchema"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #060a0f;
+      --surface: #0d1117;
+      --surface2: #111820;
+      --border: #1a2332;
+      --border2: #243040;
+      --cyan: #00d4ff;
+      --green: #00ff88;
+      --red: #ff3b5c;
+      --yellow: #f0b429;
+      --text: #e8edf2;
+      --muted: #4a5568;
+      --muted2: #718096;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.35;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(6,10,15,0.85) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Nav */
+    nav {
+      padding: 28px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      font-size: 18px;
+      color: var(--cyan);
+      letter-spacing: 0.05em;
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .price-ticker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .price-val { color: var(--green); }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(0,255,136,0); }
+    }
+
+    /* Article container */
+    .article-wrap {
+      padding-bottom: 48px;
+    }
+
+    /* Back link */
+    .article-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: color 0.2s;
+      letter-spacing: 0.04em;
+    }
+
+    .article-back:hover { color: var(--cyan); }
+
+    /* Article header */
+    .article-header {
+      margin-bottom: 28px;
+    }
+
+    .article-date-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 16px;
+    }
+
+    .article-title {
+      font-size: clamp(24px, 5vw, 40px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .article-excerpt {
+      font-size: 16px;
+      color: var(--muted2);
+      line-height: 1.65;
+    }
+
+    /* Featured image */
+    .article-featured-img {
+      width: 100%;
+      aspect-ratio: 16/9;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+      margin-bottom: 36px;
+      background: var(--surface2);
+    }
+
+    .article-featured-img-placeholder {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, var(--surface2), var(--surface));
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--border2);
+      margin-bottom: 36px;
+      letter-spacing: 0.1em;
+    }
+
+    /* Article body */
+    .article-body {
+      font-size: 15px;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 48px;
+    }
+
+    .article-body p {
+      margin-bottom: 20px;
+    }
+
+    .article-body h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin: 40px 0 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .article-body h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin: 28px 0 10px;
+    }
+
+    .article-body strong {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .article-body code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.15);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--cyan);
+    }
+
+    .article-body blockquote {
+      border-left: 2px solid var(--cyan);
+      padding: 14px 20px;
+      background: rgba(0,212,255,0.04);
+      border-radius: 0 8px 8px 0;
+      margin: 28px 0;
+      color: var(--muted2);
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    .article-body a {
+      color: var(--cyan);
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .article-body a:hover { opacity: 0.8; }
+
+    /* Back to blog link at bottom */
+    .article-footer-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 8px;
+      transition: border-color 0.2s, color 0.2s;
+      margin-bottom: 48px;
+    }
+
+    .article-footer-link:hover {
+      border-color: var(--border2);
+      color: var(--cyan);
+    }
+
+    /* Loading / error states */
+    .article-state {
+      text-align: center;
+      padding: 80px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .article-state.loading { color: var(--muted); }
+    .article-state.error { color: var(--red); }
+    .article-state.not-found { color: var(--muted2); }
+
+    .article-state h2 {
+      font-family: 'Inter', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 10px;
+      margin-top: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    .article-state p {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      color: var(--muted2);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .article-state a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: var(--cyan); }
+
+    .social-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .article-title { font-size: 24px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+      .nav-right .price-ticker { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="container">
+
+    <nav>
+      <a href="/" class="logo">trion_ai</a>
+      <div class="nav-right">
+        <div class="price-ticker">
+          BTC/USDT <span class="price-val" id="btcPrice">$84&nbsp;650</span>
+        </div>
+        <div class="status">
+          <div class="status-dot"></div>
+          building live
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="article-wrap" id="articleWrap">
+        <div class="article-state loading">// loading article...</div>
+      </div>
+    </main>
+
+    <footer>
+      <span>© 2026 Trion. Building in public.</span>
+      <div class="social-links">
+        <a href="https://tiktok.com/@trion_ai" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://youtube.com/@trion_ai" target="_blank" rel="noopener">YouTube</a>
+        <a href="https://twitter.com/trion_ai" target="_blank" rel="noopener">X</a>
+        <a href="https://instagram.com/trion_ai" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    /* =============================================
+       BACKGROUND TRADING CHART CANVAS
+    ============================================= */
+    const bgCanvas = document.getElementById('bgCanvas');
+    const bgCtx = bgCanvas.getContext('2d');
+
+    function resizeBg() {
+      bgCanvas.width = window.innerWidth;
+      bgCanvas.height = window.innerHeight;
+    }
+    resizeBg();
+    window.addEventListener('resize', resizeBg);
+
+    const numPoints = 120;
+    let bgPrices = [];
+    let bgBase = 0.5;
+    for (let i = 0; i < numPoints; i++) {
+      bgBase += (Math.random() - 0.49) * 0.02;
+      bgBase = Math.max(0.1, Math.min(0.9, bgBase));
+      bgPrices.push(bgBase);
+    }
+
+    let bgOffset = 0;
+
+    function drawBg() {
+      const w = bgCanvas.width;
+      const h = bgCanvas.height;
+      bgCtx.clearRect(0, 0, w, h);
+
+      bgOffset += 0.3;
+      if (bgOffset > (w / numPoints)) {
+        bgOffset = 0;
+        bgPrices.shift();
+        const last = bgPrices[bgPrices.length - 1];
+        const next = last + (Math.random() - 0.49) * 0.025;
+        bgPrices.push(Math.max(0.1, Math.min(0.9, next)));
+      }
+
+      const stepX = w / (numPoints - 1);
+      const padY = h * 0.15;
+      const rangeY = h - padY * 2;
+
+      bgCtx.save();
+      bgCtx.shadowBlur = 12;
+      bgCtx.shadowColor = 'rgba(0, 212, 255, 0.5)';
+      bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.7)';
+      bgCtx.lineWidth = 1.5;
+      bgCtx.beginPath();
+      bgPrices.forEach((p, i) => {
+        const x = i * stepX - bgOffset;
+        const y = padY + (1 - p) * rangeY;
+        i === 0 ? bgCtx.moveTo(x, y) : bgCtx.lineTo(x, y);
+      });
+      bgCtx.stroke();
+      bgCtx.restore();
+
+      bgCtx.save();
+      const grad = bgCtx.createLinearGradient(0, padY, 0, h);
+      grad.addColorStop(0, 'rgba(0, 212, 255, 0.08)');
+      grad.addColorStop(1, 'rgba(0, 212, 255, 0)');
+      bgCtx.fillStyle = grad;
+      bgCtx.beginPath();
+      bgPrices.forEach((p, i) => {
+        const x = i * stepX - bgOffset;
+        const y = padY + (1 - p) * rangeY;
+        i === 0 ? bgCtx.moveTo(x, y) : bgCtx.lineTo(x, y);
+      });
+      bgCtx.lineTo((numPoints - 1) * stepX - bgOffset, h);
+      bgCtx.lineTo(0 - bgOffset, h);
+      bgCtx.closePath();
+      bgCtx.fill();
+      bgCtx.restore();
+
+      bgCtx.save();
+      for (let i = 5; i < numPoints - 1; i += 10) {
+        const x = i * stepX - bgOffset;
+        if (x < -20 || x > w + 20) continue;
+        const y = padY + (1 - bgPrices[i]) * rangeY;
+        const isGreen = bgPrices[i] > bgPrices[i - 1];
+        const color = isGreen ? 'rgba(0,255,136,0.4)' : 'rgba(255,59,92,0.4)';
+        const bodyH = Math.abs(bgPrices[i] - bgPrices[i - 1]) * rangeY * 4 + 6;
+        bgCtx.fillStyle = color;
+        bgCtx.fillRect(x - 3, y - bodyH / 2, 6, bodyH);
+        bgCtx.strokeStyle = color;
+        bgCtx.lineWidth = 1;
+        bgCtx.beginPath();
+        bgCtx.moveTo(x, y - bodyH / 2 - 6);
+        bgCtx.lineTo(x, y + bodyH / 2 + 6);
+        bgCtx.stroke();
+      }
+      bgCtx.restore();
+
+      bgCtx.save();
+      bgCtx.strokeStyle = 'rgba(0, 212, 255, 0.06)';
+      bgCtx.lineWidth = 1;
+      bgCtx.setLineDash([4, 8]);
+      [0.25, 0.5, 0.75].forEach(level => {
+        const y = padY + (1 - level) * rangeY;
+        bgCtx.beginPath();
+        bgCtx.moveTo(0, y);
+        bgCtx.lineTo(w, y);
+        bgCtx.stroke();
+      });
+      bgCtx.restore();
+
+      requestAnimationFrame(drawBg);
+    }
+    drawBg();
+
+    /* =============================================
+       FAKE BTC PRICE TICKER
+    ============================================= */
+    let btcPrice = 84231;
+    setInterval(() => {
+      btcPrice += Math.floor((Math.random() - 0.49) * 80);
+      document.getElementById('btcPrice').textContent = '$' + btcPrice.toLocaleString();
+    }, 1800);
+
+    /* =============================================
+       RESOLVE ARTICLE ID
+    ============================================= */
+    function getArticleId() {
+      // Clean URL via Netlify rewrite: /blog/some-slug
+      const segments = window.location.pathname.split('/').filter(s => s && s !== 'article.html');
+      const last = segments[segments.length - 1];
+      if (last && last !== 'blog') return last;
+
+      // Direct access fallback: /blog/article.html?id=some-slug
+      return new URLSearchParams(window.location.search).get('id');
+    }
+
+    /* =============================================
+       LOAD AND RENDER ARTICLE
+    ============================================= */
+    function formatDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function updateMeta(article) {
+      const canonicalUrl = 'https://usetrion.com/blog/' + article.id;
+      document.title = article.title + ' — Trion';
+
+      document.querySelector('meta[name="description"]').content = article.excerpt;
+      document.querySelector('meta[property="og:title"]').content = article.title + ' — Trion';
+      document.querySelector('meta[property="og:description"]').content = article.excerpt;
+      document.querySelector('meta[property="og:image"]').content = article.featuredImage;
+      document.querySelector('meta[property="og:url"]').content = canonicalUrl;
+      document.querySelector('meta[name="twitter:title"]').content = article.title + ' — Trion';
+      document.querySelector('meta[name="twitter:description"]').content = article.excerpt;
+      document.querySelector('meta[name="twitter:image"]').content = article.featuredImage;
+      document.querySelector('link[rel="canonical"]').href = canonicalUrl;
+
+      document.getElementById('articleSchema').textContent = JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        'headline': article.title,
+        'description': article.excerpt,
+        'image': article.featuredImage,
+        'datePublished': article.publishDate,
+        'url': canonicalUrl,
+        'author': { '@type': 'Organization', 'name': 'Trion' },
+        'publisher': {
+          '@type': 'Organization',
+          'name': 'Trion',
+          'url': 'https://usetrion.com'
+        }
+      });
+    }
+
+    function renderNotFound() {
+      document.getElementById('articleWrap').innerHTML =
+        '<div class="article-state not-found">' +
+        '<div>// 404</div>' +
+        '<h2>Article not found</h2>' +
+        '<p>This article doesn\'t exist or may have been removed.</p>' +
+        '<a href="/blog">← Back to blog</a>' +
+        '</div>';
+    }
+
+    function renderArticle(article) {
+      updateMeta(article);
+
+      const wrap = document.getElementById('articleWrap');
+      wrap.innerHTML = '';
+
+      // Back link
+      const back = document.createElement('a');
+      back.href = '/blog';
+      back.className = 'article-back';
+      back.textContent = '← Blog';
+
+      // Header
+      const header = document.createElement('header');
+      header.className = 'article-header';
+
+      const dateLabel = document.createElement('p');
+      dateLabel.className = 'article-date-label';
+      dateLabel.textContent = '// ' + formatDate(article.publishDate);
+
+      const title = document.createElement('h1');
+      title.className = 'article-title';
+      title.textContent = article.title;
+
+      const excerpt = document.createElement('p');
+      excerpt.className = 'article-excerpt';
+      excerpt.textContent = article.excerpt;
+
+      header.appendChild(dateLabel);
+      header.appendChild(title);
+      header.appendChild(excerpt);
+
+      // Featured image
+      const img = document.createElement('img');
+      img.className = 'article-featured-img';
+      img.src = article.featuredImage;
+      img.alt = article.title;
+      img.loading = 'eager';
+      img.onerror = function() {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'article-featured-img-placeholder';
+        placeholder.textContent = '// no image';
+        this.parentNode.replaceChild(placeholder, this);
+      };
+
+      // Article body — content is developer-controlled HTML from articles.json
+      const body = document.createElement('article');
+      body.className = 'article-body';
+      body.innerHTML = article.content;
+
+      // Back to blog at bottom
+      const footerLink = document.createElement('a');
+      footerLink.href = '/blog';
+      footerLink.className = 'article-footer-link';
+      footerLink.textContent = '← Back to blog';
+
+      wrap.appendChild(back);
+      wrap.appendChild(header);
+      wrap.appendChild(img);
+      wrap.appendChild(body);
+      wrap.appendChild(footerLink);
+    }
+
+    async function loadArticle() {
+      const articleId = getArticleId();
+
+      if (!articleId) {
+        renderNotFound();
+        return;
+      }
+
+      try {
+        const res = await fetch('/blog/articles.json');
+        if (!res.ok) throw new Error('fetch failed');
+        const data = await res.json();
+
+        const article = data.articles.find(a => a.id === articleId);
+        if (!article) {
+          renderNotFound();
+          return;
+        }
+
+        renderArticle(article);
+      } catch {
+        document.getElementById('articleWrap').innerHTML =
+          '<div class="article-state error">// error loading article — please refresh</div>';
+      }
+    }
+
+    loadArticle();
+  </script>
+
+</body>
+</html>

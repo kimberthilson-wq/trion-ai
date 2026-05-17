@@ -4,3 +4,8 @@ functions = "netlify/functions"
 
 [functions]
 node_bundler = "esbuild"
+
+[[redirects]]
+  from = "/blog/:slug"
+  to = "/blog/article.html"
+  status = 200
