@@ -16,7 +16,7 @@
   </script> -->
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
     *, *::before, *::after {
       margin: 0;
@@ -25,27 +25,35 @@
     }
 
     :root {
-      --bg-deep: #030508;
-      --bg: #060a10;
-      --bg-surface: #0a0f16;
-      --bg-elevated: #0d1219;
-      --bg-card: #101820;
-      --border: #151d28;
-      --border-light: #1a2535;
-      --border-active: #243040;
-      --cyan: #00c8e8;
+      --bg-void: #010204;
+      --bg-deep: #020408;
+      --bg: #040810;
+      --bg-surface: #060c14;
+      --bg-elevated: #081018;
+      --bg-card: #0a141e;
+      --bg-panel: rgba(8, 16, 24, 0.85);
+      --border: #0c1824;
+      --border-light: #122030;
+      --border-active: #1a3048;
+      --border-glow: rgba(0, 200, 232, 0.15);
+      --cyan: #00d4f0;
+      --cyan-bright: #00e8ff;
       --cyan-dim: #0099b8;
-      --cyan-glow: rgba(0, 200, 232, 0.15);
-      --amber: #e8a912;
-      --amber-dim: #b8860b;
-      --amber-glow: rgba(232, 169, 18, 0.12);
-      --green: #10b981;
-      --green-dim: #059669;
-      --red: #ef4444;
-      --text: #e2e8f0;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --text-dim: #475569;
+      --cyan-glow: rgba(0, 212, 240, 0.12);
+      --cyan-line: rgba(0, 212, 240, 0.25);
+      --amber: #f0a800;
+      --amber-bright: #ffb800;
+      --amber-dim: #b88600;
+      --amber-glow: rgba(240, 168, 0, 0.1);
+      --green: #00e090;
+      --green-dim: #00b070;
+      --green-glow: rgba(0, 224, 144, 0.1);
+      --red: #ff4060;
+      --red-dim: #e03050;
+      --text: #e8f0f8;
+      --text-secondary: #a0b8c8;
+      --text-muted: #607080;
+      --text-dim: #405060;
     }
 
     html {
@@ -53,7 +61,7 @@
     }
 
     body {
-      background: var(--bg-deep);
+      background: var(--bg-void);
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       line-height: 1.6;
@@ -61,31 +69,155 @@
       overflow-x: hidden;
     }
 
-    /* Blueprint grid overlay */
-    .grid-overlay {
+    /* ========================================
+       CINEMATIC BACKGROUND SYSTEM
+    ======================================== */
+    .bg-system {
       position: fixed;
       inset: 0;
-      background-image:
-        linear-gradient(rgba(0, 200, 232, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 200, 232, 0.02) 1px, transparent 1px);
-      background-size: 40px 40px;
       pointer-events: none;
       z-index: 0;
+    }
+
+    /* Deep space gradient */
+    .bg-gradient {
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 120% 80% at 20% 10%, rgba(0, 212, 240, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse 100% 60% at 80% 20%, rgba(0, 212, 240, 0.02) 0%, transparent 40%),
+        radial-gradient(ellipse 80% 50% at 50% 100%, rgba(0, 100, 180, 0.03) 0%, transparent 50%),
+        linear-gradient(180deg, var(--bg-void) 0%, var(--bg-deep) 50%, var(--bg-void) 100%);
+    }
+
+    /* Blueprint grid - fine */
+    .grid-fine {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 240, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 240, 0.015) 1px, transparent 1px);
+      background-size: 20px 20px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 70%);
+    }
+
+    /* Blueprint grid - major */
+    .grid-major {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 240, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 240, 0.03) 1px, transparent 1px);
+      background-size: 100px 100px;
+      mask-image: radial-gradient(ellipse 90% 70% at 50% 30%, black 10%, transparent 60%);
+    }
+
+    /* Animated scan lines */
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 212, 240, 0.008) 2px,
+        rgba(0, 212, 240, 0.008) 4px
+      );
+      animation: scanline-scroll 20s linear infinite;
+    }
+
+    @keyframes scanline-scroll {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(100px); }
     }
 
     /* Vignette */
     .vignette {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at center, transparent 30%, var(--bg-deep) 100%);
-      pointer-events: none;
-      z-index: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 40%, transparent 20%, var(--bg-void) 100%);
     }
 
+    /* Animated data streams */
+    .data-streams {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .stream-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+      opacity: 0;
+      animation: stream-flow 8s ease-in-out infinite;
+    }
+
+    .stream-line:nth-child(1) { top: 15%; width: 200px; animation-delay: 0s; }
+    .stream-line:nth-child(2) { top: 35%; width: 300px; animation-delay: 2s; }
+    .stream-line:nth-child(3) { top: 55%; width: 150px; animation-delay: 4s; }
+    .stream-line:nth-child(4) { top: 75%; width: 250px; animation-delay: 6s; }
+    .stream-line:nth-child(5) { top: 25%; width: 180px; animation-delay: 1s; }
+    .stream-line:nth-child(6) { top: 65%; width: 220px; animation-delay: 3s; }
+
+    @keyframes stream-flow {
+      0% { left: -300px; opacity: 0; }
+      10% { opacity: 0.6; }
+      90% { opacity: 0.6; }
+      100% { left: 110%; opacity: 0; }
+    }
+
+    /* Floating particles */
+    .particles {
+      position: absolute;
+      inset: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--cyan);
+      border-radius: 50%;
+      opacity: 0;
+      animation: particle-float 15s ease-in-out infinite;
+    }
+
+    .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 25%; animation-delay: 3s; }
+    .particle:nth-child(3) { left: 45%; animation-delay: 6s; }
+    .particle:nth-child(4) { left: 65%; animation-delay: 9s; }
+    .particle:nth-child(5) { left: 85%; animation-delay: 12s; }
+    .particle:nth-child(6) { left: 30%; animation-delay: 2s; }
+    .particle:nth-child(7) { left: 70%; animation-delay: 5s; }
+    .particle:nth-child(8) { left: 50%; animation-delay: 8s; }
+
+    @keyframes particle-float {
+      0% { top: 110%; opacity: 0; transform: scale(0.5); }
+      10% { opacity: 0.4; }
+      90% { opacity: 0.4; }
+      100% { top: -10%; opacity: 0; transform: scale(1); }
+    }
+
+    /* Corner brackets decoration */
+    .corner-bracket {
+      position: fixed;
+      width: 60px;
+      height: 60px;
+      border: 1px solid rgba(0, 212, 240, 0.1);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .corner-bracket.tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+    .corner-bracket.tr { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+    .corner-bracket.bl { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+    .corner-bracket.br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 32px;
       position: relative;
       z-index: 1;
     }
@@ -99,16 +231,27 @@
       left: 0;
       right: 0;
       z-index: 100;
-      background: rgba(6, 10, 16, 0.85);
-      backdrop-filter: blur(12px);
+      background: rgba(2, 4, 8, 0.8);
+      backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--border);
     }
 
+    nav::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+    }
+
     .nav-inner {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 24px;
-      height: 56px;
+      padding: 0 32px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -117,39 +260,49 @@
     .nav-left {
       display: flex;
       align-items: center;
-      gap: 32px;
+      gap: 40px;
     }
 
     .logo {
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
-      font-size: 16px;
+      font-weight: 700;
+      font-size: 18px;
       color: var(--cyan);
-      letter-spacing: 0.1em;
+      letter-spacing: 0.15em;
       text-decoration: none;
+      position: relative;
+    }
+
+    .logo::before {
+      content: '//';
+      color: var(--text-dim);
+      margin-right: 6px;
+      font-weight: 400;
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 28px;
     }
 
     .nav-links a {
       font-size: 13px;
+      font-weight: 500;
       color: var(--text-muted);
       text-decoration: none;
       transition: color 0.2s;
+      letter-spacing: 0.02em;
     }
 
     .nav-links a:hover {
-      color: var(--text);
+      color: var(--cyan);
     }
 
     .nav-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 16px;
     }
 
     .status-badges {
@@ -161,150 +314,290 @@
     .status-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      padding: 4px 8px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      padding: 5px 10px;
       border-radius: 4px;
       text-transform: uppercase;
       white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-badge::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+      transform: translateX(-100%);
+      animation: badge-shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes badge-shimmer {
+      0%, 100% { transform: translateX(-100%); }
+      50% { transform: translateX(100%); }
     }
 
     .status-badge.paper {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      background: var(--green-glow);
+      border: 1px solid rgba(0, 224, 144, 0.2);
       color: var(--green);
     }
 
     .status-badge.readonly {
-      background: rgba(0, 200, 232, 0.08);
-      border: 1px solid rgba(0, 200, 232, 0.15);
+      background: var(--cyan-glow);
+      border: 1px solid rgba(0, 212, 240, 0.2);
       color: var(--cyan);
     }
 
     .status-badge.risk {
       background: var(--amber-glow);
-      border: 1px solid rgba(232, 169, 18, 0.2);
+      border: 1px solid rgba(240, 168, 0, 0.2);
       color: var(--amber);
     }
 
     .btn-beta {
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
       font-weight: 600;
-      padding: 8px 16px;
-      background: var(--cyan);
-      color: var(--bg-deep);
+      letter-spacing: 0.08em;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+      color: var(--bg-void);
       border: none;
       border-radius: 6px;
       cursor: pointer;
       text-decoration: none;
-      transition: opacity 0.2s, transform 0.15s;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-beta::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(135deg, var(--cyan-bright), var(--cyan));
+      border-radius: 8px;
+      opacity: 0;
+      z-index: -1;
+      transition: opacity 0.3s;
     }
 
     .btn-beta:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--cyan-glow), 0 0 0 1px var(--cyan-line);
+    }
+
+    .btn-beta:hover::before {
+      opacity: 1;
     }
 
     /* ========================================
        HERO SECTION
     ======================================== */
     .hero {
-      padding: 120px 0 80px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
+      padding: 140px 0 100px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 80px;
+      margin-bottom: 80px;
+    }
+
+    .hero-content {
+      flex: 1;
+      max-width: 640px;
+    }
+
+    .hero-label {
+      display: inline-flex;
       align-items: center;
-      min-height: 85vh;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 24px;
+      padding: 8px 16px;
+      background: var(--cyan-glow);
+      border: 1px solid rgba(0, 212, 240, 0.15);
+      border-radius: 100px;
+    }
+
+    .hero-label .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--cyan-glow); }
+      50% { opacity: 0.6; box-shadow: 0 0 12px 4px var(--cyan-glow); }
     }
 
     .hero-content h1 {
-      font-size: clamp(32px, 4vw, 48px);
+      font-size: clamp(40px, 5vw, 64px);
       font-weight: 700;
-      line-height: 1.15;
-      letter-spacing: -0.03em;
-      margin-bottom: 20px;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      margin-bottom: 28px;
       color: var(--text);
     }
 
     .hero-content h1 span {
-      color: var(--cyan);
+      display: block;
+      background: linear-gradient(135deg, var(--cyan-bright), var(--cyan), var(--cyan-dim));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero-content .subtitle {
-      font-size: 16px;
+      font-size: 17px;
       color: var(--text-secondary);
-      line-height: 1.7;
-      margin-bottom: 32px;
-      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 40px;
+      max-width: 520px;
     }
 
     .hero-ctas {
       display: flex;
-      gap: 12px;
+      gap: 16px;
       flex-wrap: wrap;
     }
 
     .btn-primary {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
       font-weight: 600;
-      padding: 14px 24px;
-      background: var(--cyan);
-      color: var(--bg-deep);
+      letter-spacing: 0.06em;
+      padding: 16px 28px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+      color: var(--bg-void);
       border: none;
       border-radius: 8px;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.2s;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      position: relative;
     }
 
     .btn-primary:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px var(--cyan-glow);
+      transform: translateY(-3px);
+      box-shadow: 
+        0 12px 40px var(--cyan-glow),
+        0 0 0 1px var(--cyan-line),
+        inset 0 1px 0 rgba(255,255,255,0.1);
     }
 
     .btn-secondary {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
-      padding: 14px 24px;
-      background: transparent;
+      padding: 16px 28px;
+      background: rgba(8, 16, 24, 0.6);
       color: var(--text-secondary);
       border: 1px solid var(--border-light);
       border-radius: 8px;
       cursor: pointer;
       text-decoration: none;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      backdrop-filter: blur(8px);
     }
 
     .btn-secondary:hover {
-      border-color: var(--border-active);
-      color: var(--text);
+      border-color: var(--cyan-line);
+      color: var(--cyan);
+      background: rgba(0, 212, 240, 0.05);
+      transform: translateY(-2px);
     }
 
-    /* Runtime Pipeline Panel */
+    /* ========================================
+       HERO - RUNTIME ARCHITECTURE VISUALIZATION
+    ======================================== */
+    .runtime-viz {
+      flex: 1;
+      max-width: 560px;
+      position: relative;
+    }
+
     .runtime-panel {
-      background: var(--bg-surface);
+      background: var(--bg-panel);
       border: 1px solid var(--border);
       border-radius: 12px;
       overflow: hidden;
+      backdrop-filter: blur(20px);
+      position: relative;
     }
 
-    .panel-header {
+    .runtime-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+    }
+
+    .runtime-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 212, 240, 0.02) 0%, transparent 30%);
+      pointer-events: none;
+    }
+
+    .panel-chrome {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 14px 20px;
-      background: var(--bg-elevated);
+      background: rgba(6, 12, 20, 0.8);
       border-bottom: 1px solid var(--border);
+    }
+
+    .panel-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .panel-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border-light);
+    }
+
+    .panel-dot.active {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+    }
+
+    .panel-title-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .panel-title {
@@ -313,16 +606,35 @@
       font-weight: 500;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
+    }
+
+    .panel-version {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      padding: 2px 6px;
+      background: var(--bg);
+      border-radius: 3px;
     }
 
     .panel-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
       display: flex;
       align-items: center;
       gap: 6px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--green);
+      padding: 4px 10px;
+      background: var(--green-glow);
+      border: 1px solid rgba(0, 224, 144, 0.15);
+      border-radius: 4px;
     }
 
     .status-dot {
@@ -330,70 +642,121 @@
       height: 6px;
       background: var(--green);
       border-radius: 50%;
-      animation: pulse 2s infinite;
+      animation: pulse-glow 2s infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+    /* Pipeline Architecture View */
+    .pipeline-architecture {
+      padding: 24px;
+      position: relative;
     }
 
-    .pipeline-flow {
-      padding: 24px 20px;
+    /* Animated trace lines in background */
+    .trace-lines {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .trace-line {
+      position: absolute;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+      opacity: 0.3;
+    }
+
+    .trace-line.horizontal {
+      width: 100%;
+      animation: trace-h 4s ease-in-out infinite;
+    }
+
+    .trace-line.vertical {
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(180deg, transparent, var(--cyan-line), transparent);
+      animation: trace-v 4s ease-in-out infinite;
+    }
+
+    @keyframes trace-h {
+      0%, 100% { opacity: 0; transform: scaleX(0); }
+      50% { opacity: 0.5; transform: scaleX(1); }
+    }
+
+    @keyframes trace-v {
+      0%, 100% { opacity: 0; transform: scaleY(0); }
+      50% { opacity: 0.5; transform: scaleY(1); }
+    }
+
+    .pipeline-stages {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
     }
 
     .pipeline-stage {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 10px 0;
+      gap: 14px;
+      padding: 12px 16px;
+      background: rgba(4, 8, 16, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       position: relative;
+      transition: all 0.3s;
     }
 
-    .pipeline-stage:not(:last-child)::after {
+    .pipeline-stage::before {
       content: '';
       position: absolute;
-      left: 11px;
-      top: 36px;
-      width: 1px;
-      height: calc(100% - 16px);
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--border-light);
+      border-radius: 3px 0 0 3px;
+      transition: all 0.3s;
+    }
+
+    .pipeline-stage.complete::before {
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green-glow);
+    }
+
+    .pipeline-stage.active::before {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+      animation: glow-pulse 1.5s ease-in-out infinite;
+    }
+
+    .pipeline-stage.pending::before {
       background: var(--border-light);
     }
 
-    .stage-indicator {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .pipeline-stage.active {
+      border-color: var(--cyan-line);
+      background: rgba(0, 212, 240, 0.03);
+    }
+
+    @keyframes glow-pulse {
+      0%, 100% { box-shadow: 0 0 8px var(--cyan-glow); }
+      50% { box-shadow: 0 0 16px var(--cyan-glow), 0 0 24px rgba(0, 212, 240, 0.1); }
+    }
+
+    .stage-number {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       font-weight: 600;
-      flex-shrink: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    .stage-indicator.active {
-      background: var(--cyan-glow);
-      border: 1px solid rgba(0, 200, 232, 0.3);
-      color: var(--cyan);
-    }
-
-    .stage-indicator.pending {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
       color: var(--text-dim);
+      width: 24px;
+      text-align: center;
     }
 
-    .stage-indicator.complete {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      color: var(--green);
-    }
+    .pipeline-stage.complete .stage-number { color: var(--green); }
+    .pipeline-stage.active .stage-number { color: var(--cyan); }
 
-    .stage-content {
+    .stage-info {
       flex: 1;
       display: flex;
       align-items: center;
@@ -403,370 +766,1112 @@
     .stage-name {
       font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
+      font-weight: 500;
       color: var(--text);
     }
 
-    .stage-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
+    .pipeline-stage.pending .stage-name {
+      color: var(--text-muted);
     }
 
-    .latency {
+    .stage-metrics {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .metric-latency {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .pipeline-stage.complete .metric-latency,
+    .pipeline-stage.active .metric-latency {
+      color: var(--text-muted);
+    }
+
+    .metric-bar {
+      width: 60px;
+      height: 4px;
+      background: var(--bg);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .metric-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan-dim), var(--cyan));
+      border-radius: 2px;
+      transition: width 0.8s ease;
+    }
+
+    .pipeline-stage.complete .metric-fill {
+      background: linear-gradient(90deg, var(--green-dim), var(--green));
+    }
+
+    .stage-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: var(--green-glow);
+      border: 1px solid rgba(0, 224, 144, 0.2);
+      color: var(--green);
+    }
+
+    /* Pipeline connector lines */
+    .pipeline-connector {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 16px;
+      position: relative;
+    }
+
+    .connector-line {
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--border-light), var(--border));
+      position: relative;
+    }
+
+    .connector-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -2px;
+      width: 5px;
+      height: 5px;
+      background: var(--cyan);
+      border-radius: 50%;
+      opacity: 0;
+      animation: data-flow 2s ease-in-out infinite;
+    }
+
+    .pipeline-connector:nth-child(4) .connector-line::after { animation-delay: 0.3s; }
+    .pipeline-connector:nth-child(6) .connector-line::after { animation-delay: 0.6s; }
+    .pipeline-connector:nth-child(8) .connector-line::after { animation-delay: 0.9s; }
+    .pipeline-connector:nth-child(10) .connector-line::after { animation-delay: 1.2s; }
+    .pipeline-connector:nth-child(12) .connector-line::after { animation-delay: 1.5s; }
+
+    @keyframes data-flow {
+      0% { top: 0; opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* Panel footer telemetry */
+    .panel-telemetry {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(4, 8, 16, 0.6);
+      border-top: 1px solid var(--border);
+    }
+
+    .telemetry-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--text-dim);
     }
 
-    .confidence-bar {
-      width: 48px;
-      height: 4px;
-      background: var(--bg-card);
-      border-radius: 2px;
+    .telemetry-value {
+      color: var(--text-muted);
+    }
+
+    .telemetry-value.active {
+      color: var(--cyan);
+    }
+
+    /* Floating metrics cards */
+    .floating-metrics {
+      position: absolute;
+      top: -20px;
+      right: -30px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .float-metric {
+      padding: 10px 14px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      backdrop-filter: blur(12px);
+      animation: float-subtle 4s ease-in-out infinite;
+    }
+
+    .float-metric:nth-child(2) { animation-delay: -1s; }
+    .float-metric:nth-child(3) { animation-delay: -2s; }
+
+    @keyframes float-subtle {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .float-metric-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+
+    .float-metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--cyan);
+    }
+
+    .float-metric-value.green { color: var(--green); }
+    .float-metric-value.amber { color: var(--amber); }
+
+    /* ========================================
+       HERO - LIVE TELEMETRY BAR
+    ======================================== */
+    .hero-telemetry {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 48px;
+      padding: 24px 40px;
+      background: rgba(6, 12, 20, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+      position: relative;
       overflow: hidden;
     }
 
-    .confidence-fill {
+    .hero-telemetry::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+    }
+
+    .hero-telemetry::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
       height: 100%;
-      background: var(--cyan);
-      border-radius: 2px;
-      transition: width 0.5s ease;
+      background: linear-gradient(90deg, transparent, rgba(0, 212, 240, 0.03), transparent);
+      animation: telemetry-sweep 4s ease-in-out infinite;
     }
 
-    .stage-badge {
+    @keyframes telemetry-sweep {
+      0% { left: -50%; }
+      100% { left: 150%; }
+    }
+
+    .telemetry-stat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .telemetry-label {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      padding: 3px 6px;
-      border-radius: 3px;
+      font-size: 10px;
+      color: var(--text-dim);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.12em;
     }
 
-    .stage-badge.paper-only {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      color: var(--green);
+    .telemetry-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .telemetry-number.cyan { color: var(--cyan); }
+    .telemetry-number.green { color: var(--green); }
+    .telemetry-number.amber { color: var(--amber); }
+
+    .telemetry-divider {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(180deg, transparent, var(--border-light), transparent);
     }
 
     /* ========================================
        SECTION STYLES
     ======================================== */
     section {
-      padding: 100px 0;
+      padding: 120px 0;
+      position: relative;
     }
 
     .section-header {
       text-align: center;
-      margin-bottom: 56px;
+      margin-bottom: 64px;
+      position: relative;
     }
 
     .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       font-weight: 500;
       color: var(--cyan);
       text-transform: uppercase;
-      letter-spacing: 0.15em;
-      margin-bottom: 16px;
+      letter-spacing: 0.2em;
+      margin-bottom: 20px;
+    }
+
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line));
+    }
+
+    .section-label::after {
+      background: linear-gradient(90deg, var(--cyan-line), transparent);
     }
 
     .section-title {
-      font-size: clamp(24px, 3vw, 36px);
+      font-size: clamp(28px, 4vw, 44px);
       font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
+      letter-spacing: -0.03em;
+      margin-bottom: 20px;
       color: var(--text);
     }
 
     .section-subtitle {
       font-size: 16px;
       color: var(--text-secondary);
-      max-width: 600px;
+      max-width: 640px;
       margin: 0 auto;
-      line-height: 1.7;
+      line-height: 1.8;
     }
 
     /* ========================================
-       PHILOSOPHY SECTION
+       PHILOSOPHY SECTION - GLASS PANELS
     ======================================== */
     .philosophy-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 20px;
     }
 
     .philosophy-card {
-      background: var(--bg-surface);
+      background: rgba(8, 16, 24, 0.5);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 28px 24px;
-      transition: all 0.2s;
+      border-radius: 12px;
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+      transition: all 0.4s;
+    }
+
+    .philosophy-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+      transition: all 0.4s;
+    }
+
+    .philosophy-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 212, 240, 0.02) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s;
     }
 
     .philosophy-card:hover {
-      border-color: var(--border-light);
-      background: var(--bg-elevated);
+      border-color: var(--border-active);
+      transform: translateY(-4px);
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px var(--border-glow);
+    }
+
+    .philosophy-card:hover::before {
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+    }
+
+    .philosophy-card:hover::after {
+      opacity: 1;
     }
 
     .card-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      width: 48px;
+      height: 48px;
+      background: rgba(0, 212, 240, 0.05);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
+      font-size: 16px;
+      font-weight: 600;
       color: var(--cyan);
+      position: relative;
+      z-index: 1;
+      transition: all 0.4s;
+    }
+
+    .philosophy-card:hover .card-icon {
+      background: var(--cyan-glow);
+      border-color: var(--cyan-line);
+      box-shadow: 0 0 20px var(--cyan-glow);
     }
 
     .philosophy-card h3 {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       color: var(--text);
+      position: relative;
+      z-index: 1;
     }
 
     .philosophy-card p {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
     }
 
     /* ========================================
-       WORKSTATION PREVIEW
+       WORKSTATION PREVIEW - CINEMATIC DASHBOARD
     ======================================== */
-    .workstation-preview {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
+    .workstation-container {
+      position: relative;
     }
 
-    .workstation-header {
+    /* Ambient glow behind workstation */
+    .workstation-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 60%;
+      background: radial-gradient(ellipse, rgba(0, 212, 240, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .workstation-frame {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      position: relative;
+      box-shadow: 
+        0 40px 100px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(0, 212, 240, 0.05);
+    }
+
+    .workstation-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 10%, var(--cyan-line) 50%, transparent 90%);
+    }
+
+    .workstation-chrome {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 16px 24px;
-      background: var(--bg-elevated);
+      background: rgba(6, 12, 20, 0.9);
       border-bottom: 1px solid var(--border);
     }
 
-    .workstation-tabs {
+    .chrome-left {
       display: flex;
-      gap: 4px;
+      align-items: center;
+      gap: 20px;
     }
 
-    .workstation-tab {
+    .window-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .window-control {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--border-light);
+    }
+
+    .window-control.red { background: #ff5f57; }
+    .window-control.yellow { background: #febc2e; }
+    .window-control.green { background: #28c840; }
+
+    .workstation-tabs {
+      display: flex;
+      gap: 2px;
+    }
+
+    .ws-tab {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      padding: 6px 12px;
-      border-radius: 4px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 6px;
       color: var(--text-dim);
       cursor: pointer;
       transition: all 0.2s;
+      position: relative;
     }
 
-    .workstation-tab.active {
-      background: var(--bg-card);
+    .ws-tab.active {
+      background: rgba(0, 212, 240, 0.08);
       color: var(--cyan);
     }
 
-    .workstation-tab:hover:not(.active) {
-      color: var(--text-muted);
+    .ws-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 2px;
+      background: var(--cyan);
+      border-radius: 1px;
     }
 
-    .workstation-grid {
+    .ws-tab:hover:not(.active) {
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .chrome-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .chrome-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--green);
+      padding: 6px 12px;
+      background: var(--green-glow);
+      border: 1px solid rgba(0, 224, 144, 0.15);
+      border-radius: 6px;
+    }
+
+    .chrome-timestamp {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    /* Dashboard grid */
+    .dashboard-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      grid-template-rows: auto auto;
       gap: 1px;
       background: var(--border);
     }
 
-    .ws-panel {
+    .dash-panel {
       background: var(--bg);
-      padding: 20px;
+      padding: 24px;
+      position: relative;
     }
 
-    .ws-panel-header {
+    .dash-panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 212, 240, 0.01) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .dash-panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
-    .ws-panel-title {
+    .dash-panel-title {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
+      font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
     }
 
-    .ws-panel-badge {
+    .dash-panel-badge {
       font-family: 'JetBrains Mono', monospace;
       font-size: 9px;
-      padding: 2px 6px;
-      border-radius: 3px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       background: var(--cyan-glow);
+      border: 1px solid rgba(0, 212, 240, 0.15);
       color: var(--cyan);
     }
 
-    .ws-metric {
-      margin-bottom: 12px;
+    .dash-panel-badge.amber {
+      background: var(--amber-glow);
+      border-color: rgba(240, 168, 0, 0.15);
+      color: var(--amber);
     }
 
-    .ws-metric-label {
-      font-size: 11px;
+    .dash-panel-badge.green {
+      background: var(--green-glow);
+      border-color: rgba(0, 224, 144, 0.15);
+      color: var(--green);
+    }
+
+    /* AI Decision Panel */
+    .ai-decision-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ai-bias {
+      margin-bottom: 24px;
+    }
+
+    .ai-bias-label {
+      font-size: 12px;
       color: var(--text-dim);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
-    .ws-metric-value {
+    .ai-bias-value {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 18px;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--green);
+      letter-spacing: -0.02em;
+    }
+
+    .ai-confidence {
+      margin-bottom: 20px;
+    }
+
+    .ai-confidence-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .ai-confidence-label {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .ai-confidence-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text);
     }
 
-    .ws-metric-value.positive {
-      color: var(--green);
+    .confidence-track {
+      height: 6px;
+      background: var(--bg-card);
+      border-radius: 3px;
+      overflow: hidden;
     }
 
-    .ws-metric-value.amber {
-      color: var(--amber);
+    .confidence-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan-dim), var(--cyan));
+      border-radius: 3px;
+      position: relative;
+      transition: width 1s ease;
     }
 
-    .ws-signal-list {
+    .confidence-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 20px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+      animation: shimmer 2s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    .ai-signals {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .ws-signal {
+    .ai-signal {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 12px;
-      background: var(--bg-surface);
+      padding: 10px 14px;
+      background: rgba(4, 8, 16, 0.6);
+      border: 1px solid var(--border);
       border-radius: 6px;
+    }
+
+    .ai-signal-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .ai-signal-value {
+      font-family: 'JetBrains Mono', monospace;
       font-size: 12px;
+      font-weight: 600;
     }
 
-    .ws-signal-name {
+    .ai-signal-value.positive { color: var(--green); }
+    .ai-signal-value.negative { color: var(--red); }
+    .ai-signal-value.neutral { color: var(--amber); }
+
+    /* Center panel - Signal Flow */
+    .signal-flow-panel {
+      grid-row: span 2;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .signal-flow-viz {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .signal-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(4, 8, 16, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .signal-row::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      border-radius: 3px 0 0 3px;
+    }
+
+    .signal-row.active::before {
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan-glow);
+    }
+
+    .signal-row.validated::before {
+      background: var(--green);
+    }
+
+    .signal-row.pending::before {
+      background: var(--border-light);
+    }
+
+    .signal-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: 'JetBrains Mono', monospace;
-      color: var(--text-secondary);
+      font-size: 12px;
+      color: var(--cyan);
     }
 
-    .ws-signal-value {
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 500;
-    }
-
-    .ws-signal-value.bullish {
+    .signal-row.validated .signal-icon {
+      border-color: rgba(0, 224, 144, 0.3);
       color: var(--green);
     }
 
-    .ws-signal-value.bearish {
-      color: var(--red);
+    .signal-content {
+      flex: 1;
     }
 
-    .ws-signal-value.neutral {
-      color: var(--amber);
+    .signal-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
     }
 
-    .risk-meter {
-      margin-top: 8px;
+    .signal-detail {
+      font-size: 11px;
+      color: var(--text-dim);
     }
 
-    .risk-bar {
+    .signal-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 4px;
+    }
+
+    .signal-status.processing {
+      background: var(--cyan-glow);
+      color: var(--cyan);
+      animation: status-pulse 1.5s ease-in-out infinite;
+    }
+
+    .signal-status.passed {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .signal-status.waiting {
+      background: rgba(64, 80, 96, 0.2);
+      color: var(--text-dim);
+    }
+
+    @keyframes status-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Risk Manager Panel */
+    .risk-metrics {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .risk-metric {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .risk-metric-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .risk-metric-label {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .risk-metric-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .risk-metric-value.safe { color: var(--green); }
+    .risk-metric-value.warning { color: var(--amber); }
+    .risk-metric-value.danger { color: var(--red); }
+
+    .risk-bar-track {
       height: 6px;
       background: var(--bg-card);
       border-radius: 3px;
       overflow: hidden;
+    }
+
+    .risk-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .risk-bar-fill.safe {
+      background: linear-gradient(90deg, var(--green-dim), var(--green));
+    }
+
+    .risk-bar-fill.warning {
+      background: linear-gradient(90deg, var(--green), var(--amber));
+    }
+
+    .risk-bar-fill.danger {
+      background: linear-gradient(90deg, var(--amber), var(--red));
+    }
+
+    .risk-dial {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(4, 8, 16, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       margin-top: 8px;
     }
 
-    .risk-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--green), var(--amber), var(--red));
-      border-radius: 3px;
-      transition: width 0.5s;
+    .risk-dial-inner {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--green) 0deg,
+        var(--amber) 120deg,
+        var(--red) 240deg,
+        var(--red) 360deg
+      );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
-    .ws-footer {
-      padding: 12px 24px;
-      background: var(--bg-elevated);
-      border-top: 1px solid var(--border);
+    .risk-dial-inner::before {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      background: var(--bg);
+      border-radius: 50%;
+    }
+
+    .risk-dial-value {
+      position: relative;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--amber);
+    }
+
+    /* Execution State Panel */
+    .execution-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .execution-mode {
+      margin-bottom: 24px;
+    }
+
+    .execution-mode-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+
+    .execution-mode-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--green);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mode-indicator {
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    .execution-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .execution-stat {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(4, 8, 16, 0.6);
+      border: 1px solid var(--border);
+      border-radius: 6px;
     }
 
-    .ws-footer-note {
+    .execution-stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .execution-stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Dashboard footer */
+    .dashboard-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 24px;
+      background: rgba(6, 12, 20, 0.9);
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-note {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
       color: var(--text-dim);
     }
 
-    .execution-state {
+    .footer-execution {
       display: flex;
       align-items: center;
       gap: 8px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      padding: 4px 10px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      border-radius: 4px;
       color: var(--green);
+      padding: 6px 12px;
+      background: var(--green-glow);
+      border: 1px solid rgba(0, 224, 144, 0.15);
+      border-radius: 6px;
     }
 
     /* ========================================
-       BUILD IN PUBLIC
+       BUILD IN PUBLIC SECTION
     ======================================== */
     .build-section {
-      background: var(--bg-surface);
+      position: relative;
+    }
+
+    .build-card {
+      background: var(--bg-panel);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 56px;
+      border-radius: 16px;
+      padding: 64px;
       text-align: center;
+      backdrop-filter: blur(20px);
+      position: relative;
+      overflow: hidden;
     }
 
-    .build-section h2 {
-      font-size: 28px;
+    .build-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
+    }
+
+    .build-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center top, rgba(0, 212, 240, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .build-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .build-content h2 {
+      font-size: clamp(24px, 3vw, 36px);
       font-weight: 700;
-      margin-bottom: 16px;
       letter-spacing: -0.02em;
+      margin-bottom: 16px;
     }
 
-    .build-section p {
-      font-size: 15px;
+    .build-content p {
+      font-size: 16px;
       color: var(--text-secondary);
-      max-width: 560px;
+      max-width: 600px;
       margin: 0 auto 32px;
-      line-height: 1.7;
+      line-height: 1.8;
     }
 
     .build-topics {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 8px;
-      margin-bottom: 32px;
+      gap: 10px;
+      margin-bottom: 40px;
     }
 
     .build-topic {
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      padding: 6px 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
+      font-weight: 500;
+      padding: 8px 16px;
+      background: rgba(0, 212, 240, 0.05);
+      border: 1px solid var(--border-light);
+      border-radius: 100px;
       color: var(--text-muted);
+      transition: all 0.3s;
+    }
+
+    .build-topic:hover {
+      border-color: var(--cyan-line);
+      color: var(--cyan);
+      background: var(--cyan-glow);
     }
 
     /* ========================================
@@ -775,137 +1880,207 @@
     .social-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      gap: 20px;
     }
 
     .social-card {
-      background: var(--bg-surface);
+      background: var(--bg-panel);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 24px;
+      border-radius: 12px;
+      padding: 28px 24px;
       text-align: center;
       text-decoration: none;
-      transition: all 0.2s;
+      backdrop-filter: blur(8px);
+      transition: all 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(0, 212, 240, 0.03) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s;
     }
 
     .social-card:hover {
-      border-color: var(--border-light);
-      background: var(--bg-elevated);
-      transform: translateY(-2px);
+      border-color: var(--border-active);
+      transform: translateY(-6px);
+      box-shadow: 
+        0 24px 64px rgba(0, 0, 0, 0.3),
+        0 0 0 1px var(--border-glow);
+    }
+
+    .social-card:hover::before {
+      opacity: 1;
     }
 
     .social-icon {
-      width: 40px;
-      height: 40px;
-      margin: 0 auto 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      background: rgba(0, 212, 240, 0.05);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      color: var(--cyan);
+      transition: all 0.4s;
+      position: relative;
+      z-index: 1;
+    }
+
+    .social-card:hover .social-icon {
+      background: var(--cyan-glow);
+      border-color: var(--cyan-line);
+      box-shadow: 0 0 24px var(--cyan-glow);
     }
 
     .social-card h3 {
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
     }
 
     .social-card p {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-dim);
+      position: relative;
+      z-index: 1;
     }
 
     /* ========================================
        BETA APPLICATION FORM
     ======================================== */
     .beta-section {
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
       position: relative;
     }
 
-    .beta-section::before {
+    .beta-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      height: 40%;
+      background: radial-gradient(ellipse, rgba(0, 212, 240, 0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .beta-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(20px);
+      position: relative;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.3);
+    }
+
+    .beta-card::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       height: 1px;
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      background: linear-gradient(90deg, transparent 10%, var(--cyan-line) 50%, transparent 90%);
     }
 
     .beta-header {
-      padding: 48px 48px 0;
+      padding: 56px 56px 0;
       text-align: center;
+      position: relative;
+    }
+
+    .beta-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-light), transparent);
     }
 
     .beta-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      padding: 5px 12px;
+      font-weight: 600;
+      padding: 8px 16px;
       background: var(--amber-glow);
-      border: 1px solid rgba(232, 169, 18, 0.2);
+      border: 1px solid rgba(240, 168, 0, 0.2);
       border-radius: 100px;
       color: var(--amber);
-      margin-bottom: 16px;
+      margin-bottom: 24px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.12em;
+    }
+
+    .beta-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--amber);
+      border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
     }
 
     .beta-header h2 {
-      font-size: 28px;
+      font-size: clamp(28px, 4vw, 40px);
       font-weight: 700;
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
     }
 
     .beta-header p {
-      font-size: 15px;
+      font-size: 16px;
       color: var(--text-secondary);
-      max-width: 480px;
+      max-width: 520px;
       margin: 0 auto;
+      line-height: 1.8;
     }
 
     .beta-form-wrapper {
-      padding: 40px 48px 48px;
+      padding: 48px 56px 56px;
     }
 
     .beta-form {
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      max-width: 560px;
+      gap: 24px;
+      max-width: 600px;
       margin: 0 auto;
     }
 
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 20px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
     }
 
     .form-group label {
       font-family: 'JetBrains Mono', monospace;
       font-size: 10px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text-muted);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
     }
 
     .form-group input,
@@ -914,20 +2089,20 @@
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
-      padding: 12px 16px;
+      padding: 14px 18px;
       border-radius: 8px;
       font-family: 'Inter', sans-serif;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: all 0.3s;
       width: 100%;
     }
 
     .form-group input:focus,
     .form-group select:focus,
     .form-group textarea:focus {
-      border-color: rgba(0, 200, 232, 0.4);
-      box-shadow: 0 0 0 3px var(--cyan-glow);
+      border-color: var(--cyan-line);
+      box-shadow: 0 0 0 3px var(--cyan-glow), 0 0 20px var(--cyan-glow);
     }
 
     .form-group input::placeholder,
@@ -937,9 +2112,9 @@
 
     .form-group select {
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23607080' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
       background-repeat: no-repeat;
-      background-position: right 14px center;
+      background-position: right 16px center;
       cursor: pointer;
     }
 
@@ -949,29 +2124,49 @@
 
     .form-group textarea {
       resize: vertical;
-      min-height: 100px;
-      line-height: 1.6;
+      min-height: 110px;
+      line-height: 1.7;
     }
 
     .btn-submit {
       width: 100%;
-      background: var(--cyan);
-      color: var(--bg-deep);
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+      color: var(--bg-void);
       border: none;
-      padding: 14px;
+      padding: 16px;
       border-radius: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
       font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
       margin-top: 8px;
+      position: relative;
+      overflow: hidden;
     }
 
     .btn-submit:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-      box-shadow: 0 8px 24px var(--cyan-glow);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 12px 40px var(--cyan-glow),
+        0 0 0 1px var(--cyan-line);
+    }
+
+    .btn-submit::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .btn-submit:hover::after {
+      left: 100%;
     }
 
     .form-note {
@@ -984,34 +2179,34 @@
     .success-state {
       display: none;
       text-align: center;
-      padding: 48px;
+      padding: 64px;
     }
 
     .success-icon {
-      width: 56px;
-      height: 56px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.2);
-      border-radius: 12px;
+      width: 64px;
+      height: 64px;
+      background: var(--green-glow);
+      border: 1px solid rgba(0, 224, 144, 0.2);
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 24px;
+      margin: 0 auto 24px;
+      font-size: 28px;
       color: var(--green);
     }
 
     .success-state h3 {
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 600;
       color: var(--text);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .success-state p {
-      font-size: 14px;
+      font-size: 15px;
       color: var(--text-secondary);
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
     .success-state a {
@@ -1028,7 +2223,19 @@
     ======================================== */
     footer {
       border-top: 1px solid var(--border);
-      padding: 32px 0;
+      padding: 40px 0;
+      position: relative;
+    }
+
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-line), transparent);
     }
 
     .footer-inner {
@@ -1038,21 +2245,21 @@
     }
 
     .footer-left {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-dim);
     }
 
     .footer-links {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: 28px;
     }
 
     .footer-links a {
-      font-size: 12px;
+      font-size: 13px;
       color: var(--text-muted);
       text-decoration: none;
-      transition: color 0.2s;
+      transition: color 0.3s;
     }
 
     .footer-links a:hover {
@@ -1063,45 +2270,67 @@
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
       color: var(--text-dim);
-      margin-top: 16px;
+      margin-top: 24px;
       text-align: center;
-      padding-top: 16px;
+      padding-top: 24px;
       border-top: 1px solid var(--border);
+      letter-spacing: 0.02em;
     }
 
     /* ========================================
        RESPONSIVE
     ======================================== */
+    @media (max-width: 1200px) {
+      .hero-top {
+        flex-direction: column;
+        gap: 60px;
+      }
+
+      .runtime-viz {
+        max-width: 100%;
+      }
+
+      .floating-metrics {
+        display: none;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .signal-flow-panel {
+        grid-column: span 2;
+        grid-row: auto;
+      }
+    }
+
     @media (max-width: 1024px) {
-      .hero {
-        grid-template-columns: 1fr;
-        gap: 48px;
-        padding: 100px 0 60px;
-        min-height: auto;
-      }
-
-      .runtime-panel {
-        max-width: 480px;
-        margin: 0 auto;
-      }
-
       .philosophy-grid {
         grid-template-columns: repeat(2, 1fr);
-      }
-
-      .workstation-grid {
-        grid-template-columns: 1fr;
       }
 
       .social-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .hero-telemetry {
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      .telemetry-divider {
+        display: none;
+      }
     }
 
     @media (max-width: 768px) {
+      .container {
+        padding: 0 20px;
+      }
+
       .nav-inner {
         height: auto;
-        padding: 12px 16px;
+        padding: 14px 20px;
         flex-wrap: wrap;
         gap: 12px;
       }
@@ -1120,7 +2349,12 @@
       }
 
       .hero {
-        padding: 80px 0 48px;
+        padding: 100px 0 60px;
+        min-height: auto;
+      }
+
+      .hero-content h1 {
+        font-size: 32px;
       }
 
       .hero-ctas {
@@ -1137,6 +2371,14 @@
         grid-template-columns: 1fr;
       }
 
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .signal-flow-panel {
+        grid-column: auto;
+      }
+
       .form-row {
         grid-template-columns: 1fr;
       }
@@ -1147,7 +2389,7 @@
         padding-right: 24px;
       }
 
-      .build-section {
+      .build-card {
         padding: 40px 24px;
       }
 
@@ -1157,8 +2399,12 @@
 
       .footer-inner {
         flex-direction: column;
-        gap: 16px;
+        gap: 20px;
         text-align: center;
+      }
+
+      .corner-bracket {
+        display: none;
       }
     }
 
@@ -1166,13 +2412,49 @@
       .social-grid {
         grid-template-columns: 1fr;
       }
+
+      .hero-telemetry {
+        padding: 20px 24px;
+        gap: 20px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="grid-overlay"></div>
-  <div class="vignette"></div>
+  <!-- ========================================
+       CINEMATIC BACKGROUND SYSTEM
+  ======================================== -->
+  <div class="bg-system">
+    <div class="bg-gradient"></div>
+    <div class="grid-fine"></div>
+    <div class="grid-major"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div class="data-streams">
+      <div class="stream-line"></div>
+      <div class="stream-line"></div>
+      <div class="stream-line"></div>
+      <div class="stream-line"></div>
+      <div class="stream-line"></div>
+      <div class="stream-line"></div>
+    </div>
+    <div class="particles">
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+
+  <div class="corner-bracket tl"></div>
+  <div class="corner-bracket tr"></div>
+  <div class="corner-bracket bl"></div>
+  <div class="corner-bracket br"></div>
 
   <!-- ========================================
        NAVIGATION
@@ -1203,96 +2485,175 @@
   ======================================== -->
   <div class="container">
     <section class="hero">
-      <div class="hero-content">
-        <h1>AI trading infrastructure.<br><span>Deterministic by design.</span></h1>
-        <p class="subtitle">
-          TRION separates AI reasoning, validation, independent risk authority, and execution boundaries into one transparent paper-trading workstation.
-        </p>
-        <div class="hero-ctas">
-          <a href="#beta" class="btn-primary">Apply for Beta</a>
-          <a href="https://usetrion.com/blog/" class="btn-secondary">Read Build Log</a>
-          <a href="https://discord.gg/trion" target="_blank" class="btn-secondary">Join Discord</a>
+      <div class="hero-top">
+        <div class="hero-content">
+          <div class="hero-label">
+            <span class="dot"></span>
+            AI Trading Infrastructure
+          </div>
+          <h1>AI trading infrastructure.<br><span>Deterministic by design.</span></h1>
+          <p class="subtitle">
+            TRION separates AI reasoning, validation, independent risk authority, and execution boundaries into one transparent paper-trading workstation. Every decision passes through deterministic validation gates before paper execution.
+          </p>
+          <div class="hero-ctas">
+            <a href="#beta" class="btn-primary">Apply for Beta Access</a>
+            <a href="https://usetrion.com/blog/" class="btn-secondary">Read Build Log</a>
+            <a href="https://discord.gg/trion" target="_blank" class="btn-secondary">Join Discord</a>
+          </div>
+        </div>
+
+        <div class="runtime-viz">
+          <div class="runtime-panel">
+            <div class="panel-chrome">
+              <div class="panel-title-bar">
+                <div class="panel-dots">
+                  <span class="panel-dot active"></span>
+                  <span class="panel-dot"></span>
+                  <span class="panel-dot"></span>
+                </div>
+                <span class="panel-title">Runtime Pipeline</span>
+                <span class="panel-version">v0.4.2</span>
+              </div>
+              <div class="panel-status">
+                <div class="status-indicator">
+                  <span class="status-dot"></span>
+                  <span>OPERATIONAL</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="pipeline-architecture">
+              <div class="trace-lines">
+                <div class="trace-line horizontal" style="top: 20%;"></div>
+                <div class="trace-line horizontal" style="top: 50%;"></div>
+                <div class="trace-line horizontal" style="top: 80%;"></div>
+              </div>
+              
+              <div class="pipeline-stages">
+                <div class="pipeline-stage complete">
+                  <span class="stage-number">01</span>
+                  <div class="stage-info">
+                    <span class="stage-name">market_tick</span>
+                    <div class="stage-metrics">
+                      <span class="metric-latency">12ms</span>
+                      <div class="metric-bar"><div class="metric-fill" style="width: 100%"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pipeline-connector"><div class="connector-line"></div></div>
+                
+                <div class="pipeline-stage complete">
+                  <span class="stage-number">02</span>
+                  <div class="stage-info">
+                    <span class="stage-name">clean_data</span>
+                    <div class="stage-metrics">
+                      <span class="metric-latency">8ms</span>
+                      <div class="metric-bar"><div class="metric-fill" style="width: 100%"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pipeline-connector"><div class="connector-line"></div></div>
+                
+                <div class="pipeline-stage complete">
+                  <span class="stage-number">03</span>
+                  <div class="stage-info">
+                    <span class="stage-name">features_ready</span>
+                    <div class="stage-metrics">
+                      <span class="metric-latency">24ms</span>
+                      <div class="metric-bar"><div class="metric-fill" style="width: 100%"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pipeline-connector"><div class="connector-line"></div></div>
+                
+                <div class="pipeline-stage active">
+                  <span class="stage-number">04</span>
+                  <div class="stage-info">
+                    <span class="stage-name">analysis_ready</span>
+                    <div class="stage-metrics">
+                      <span class="metric-latency">156ms</span>
+                      <div class="metric-bar"><div class="metric-fill" style="width: 87%"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pipeline-connector"><div class="connector-line"></div></div>
+                
+                <div class="pipeline-stage pending">
+                  <span class="stage-number">05</span>
+                  <div class="stage-info">
+                    <span class="stage-name">risk_validation</span>
+                    <div class="stage-metrics">
+                      <span class="metric-latency">--</span>
+                      <div class="metric-bar"><div class="metric-fill" style="width: 0%"></div></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="pipeline-connector"><div class="connector-line"></div></div>
+                
+                <div class="pipeline-stage pending">
+                  <span class="stage-number">06</span>
+                  <div class="stage-info">
+                    <span class="stage-name">paper_order</span>
+                    <div class="stage-metrics">
+                      <span class="stage-badge">Paper Only</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="panel-telemetry">
+              <div class="telemetry-item">
+                <span>Uptime:</span>
+                <span class="telemetry-value active">99.7%</span>
+              </div>
+              <div class="telemetry-item">
+                <span>Avg Latency:</span>
+                <span class="telemetry-value">48ms</span>
+              </div>
+              <div class="telemetry-item">
+                <span>Signals/hr:</span>
+                <span class="telemetry-value">1,247</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="floating-metrics">
+            <div class="float-metric">
+              <div class="float-metric-label">Confidence</div>
+              <div class="float-metric-value">0.87</div>
+            </div>
+            <div class="float-metric">
+              <div class="float-metric-label">Risk Score</div>
+              <div class="float-metric-value amber">34%</div>
+            </div>
+            <div class="float-metric">
+              <div class="float-metric-label">Status</div>
+              <div class="float-metric-value green">VALID</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="runtime-panel">
-        <div class="panel-header">
-          <span class="panel-title">Runtime Pipeline</span>
-          <div class="panel-status">
-            <span class="status-dot"></span>
-            <span>OPERATIONAL</span>
-          </div>
+      <div class="hero-telemetry">
+        <div class="telemetry-stat">
+          <span class="telemetry-label">Pipeline Stages</span>
+          <span class="telemetry-number cyan">7</span>
         </div>
-        <div class="pipeline-flow">
-          <div class="pipeline-stage" data-stage="0">
-            <div class="stage-indicator complete">01</div>
-            <div class="stage-content">
-              <span class="stage-name">market_tick</span>
-              <div class="stage-meta">
-                <span class="latency">12ms</span>
-                <div class="confidence-bar"><div class="confidence-fill" style="width: 100%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pipeline-stage" data-stage="1">
-            <div class="stage-indicator complete">02</div>
-            <div class="stage-content">
-              <span class="stage-name">clean_data</span>
-              <div class="stage-meta">
-                <span class="latency">8ms</span>
-                <div class="confidence-bar"><div class="confidence-fill" style="width: 100%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pipeline-stage" data-stage="2">
-            <div class="stage-indicator complete">03</div>
-            <div class="stage-content">
-              <span class="stage-name">features_ready</span>
-              <div class="stage-meta">
-                <span class="latency">24ms</span>
-                <div class="confidence-bar"><div class="confidence-fill" style="width: 100%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pipeline-stage" data-stage="3">
-            <div class="stage-indicator active">04</div>
-            <div class="stage-content">
-              <span class="stage-name">analysis_ready</span>
-              <div class="stage-meta">
-                <span class="latency">156ms</span>
-                <div class="confidence-bar"><div class="confidence-fill" style="width: 87%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pipeline-stage" data-stage="4">
-            <div class="stage-indicator pending">05</div>
-            <div class="stage-content">
-              <span class="stage-name">strategy_ready</span>
-              <div class="stage-meta">
-                <span class="latency">--</span>
-                <div class="confidence-bar"><div class="confidence-fill" style="width: 0%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pipeline-stage" data-stage="5">
-            <div class="stage-indicator pending">06</div>
-            <div class="stage-content">
-              <span class="stage-name">risk_validation</span>
-              <div class="stage-meta">
-                <span class="latency">--</span>
-                <div class="confidence-bar"><div class="confidence-fill" style="width: 0%"></div></div>
-              </div>
-            </div>
-          </div>
-          <div class="pipeline-stage" data-stage="6">
-            <div class="stage-indicator pending">07</div>
-            <div class="stage-content">
-              <span class="stage-name">paper_order</span>
-              <div class="stage-meta">
-                <span class="stage-badge paper-only">Paper Only</span>
-              </div>
-            </div>
-          </div>
+        <div class="telemetry-divider"></div>
+        <div class="telemetry-stat">
+          <span class="telemetry-label">Validation Gates</span>
+          <span class="telemetry-number cyan">12</span>
+        </div>
+        <div class="telemetry-divider"></div>
+        <div class="telemetry-stat">
+          <span class="telemetry-label">Risk Checks</span>
+          <span class="telemetry-number amber">24</span>
+        </div>
+        <div class="telemetry-divider"></div>
+        <div class="telemetry-stat">
+          <span class="telemetry-label">Execution Mode</span>
+          <span class="telemetry-number green">PAPER</span>
         </div>
       </div>
     </section>
@@ -1305,7 +2666,7 @@
         <div class="section-label">System Philosophy</div>
         <h2 class="section-title">Constrained Intelligence</h2>
         <p class="section-subtitle">
-          TRION was designed around constrained intelligence rather than unrestricted AI autonomy. Every decision passes through multiple validation gates.
+          TRION was designed around constrained intelligence rather than unrestricted AI autonomy. Every decision passes through multiple validation gates before reaching paper execution.
         </p>
       </div>
 
@@ -1351,98 +2712,187 @@
         <div class="section-label">Inside the System</div>
         <h2 class="section-title">Workstation Preview</h2>
         <p class="section-subtitle">
-          A glimpse into the TRION control interface. Every panel reflects real system state.
+          A glimpse into the TRION control interface. Every panel reflects real system state, AI decisions, and risk validation.
         </p>
       </div>
 
-      <div class="workstation-preview">
-        <div class="workstation-header">
-          <div class="workstation-tabs">
-            <span class="workstation-tab active">Overview</span>
-            <span class="workstation-tab">AI Decision</span>
-            <span class="workstation-tab">Risk Manager</span>
-            <span class="workstation-tab">Execution</span>
-          </div>
-          <div class="panel-status">
-            <span class="status-dot"></span>
-            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--green);">PAPER MODE</span>
-          </div>
-        </div>
-
-        <div class="workstation-grid">
-          <div class="ws-panel">
-            <div class="ws-panel-header">
-              <span class="ws-panel-title">AI Decision</span>
-              <span class="ws-panel-badge">Live</span>
-            </div>
-            <div class="ws-metric">
-              <div class="ws-metric-label">Current Bias</div>
-              <div class="ws-metric-value positive">BULLISH</div>
-            </div>
-            <div class="ws-metric">
-              <div class="ws-metric-label">Confidence</div>
-              <div class="ws-metric-value">0.73</div>
-            </div>
-            <div class="ws-signal-list">
-              <div class="ws-signal">
-                <span class="ws-signal-name">momentum</span>
-                <span class="ws-signal-value bullish">+0.42</span>
+      <div class="workstation-container">
+        <div class="workstation-glow"></div>
+        <div class="workstation-frame">
+          <div class="workstation-chrome">
+            <div class="chrome-left">
+              <div class="window-controls">
+                <span class="window-control red"></span>
+                <span class="window-control yellow"></span>
+                <span class="window-control green"></span>
               </div>
-              <div class="ws-signal">
-                <span class="ws-signal-name">volatility</span>
-                <span class="ws-signal-value neutral">0.18</span>
+              <div class="workstation-tabs">
+                <span class="ws-tab active">Overview</span>
+                <span class="ws-tab">AI Decision</span>
+                <span class="ws-tab">Risk Manager</span>
+                <span class="ws-tab">Execution</span>
               </div>
+            </div>
+            <div class="chrome-right">
+              <div class="chrome-status">
+                <span class="status-dot"></span>
+                <span>PAPER MODE</span>
+              </div>
+              <span class="chrome-timestamp">12:34:56 UTC</span>
             </div>
           </div>
 
-          <div class="ws-panel">
-            <div class="ws-panel-header">
-              <span class="ws-panel-title">Risk Manager</span>
-              <span class="ws-panel-badge">Active</span>
+          <div class="dashboard-grid">
+            <div class="dash-panel">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title">AI Decision</span>
+                <span class="dash-panel-badge">Live</span>
+              </div>
+              <div class="ai-decision-content">
+                <div class="ai-bias">
+                  <div class="ai-bias-label">Current Bias</div>
+                  <div class="ai-bias-value">BULLISH</div>
+                </div>
+                <div class="ai-confidence">
+                  <div class="ai-confidence-header">
+                    <span class="ai-confidence-label">Confidence</span>
+                    <span class="ai-confidence-value">0.73</span>
+                  </div>
+                  <div class="confidence-track">
+                    <div class="confidence-fill" style="width: 73%"></div>
+                  </div>
+                </div>
+                <div class="ai-signals">
+                  <div class="ai-signal">
+                    <span class="ai-signal-name">momentum</span>
+                    <span class="ai-signal-value positive">+0.42</span>
+                  </div>
+                  <div class="ai-signal">
+                    <span class="ai-signal-name">volatility</span>
+                    <span class="ai-signal-value neutral">0.18</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="ws-metric">
-              <div class="ws-metric-label">Position Size</div>
-              <div class="ws-metric-value">2.4%</div>
+
+            <div class="dash-panel signal-flow-panel">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title">Signal Flow</span>
+                <span class="dash-panel-badge green">Processing</span>
+              </div>
+              <div class="signal-flow-viz">
+                <div class="signal-row validated">
+                  <div class="signal-icon">01</div>
+                  <div class="signal-content">
+                    <div class="signal-title">Market Data Ingestion</div>
+                    <div class="signal-detail">BTC/USD tick received</div>
+                  </div>
+                  <span class="signal-status passed">Passed</span>
+                </div>
+                <div class="signal-row validated">
+                  <div class="signal-icon">02</div>
+                  <div class="signal-content">
+                    <div class="signal-title">Feature Extraction</div>
+                    <div class="signal-detail">24 features computed</div>
+                  </div>
+                  <span class="signal-status passed">Passed</span>
+                </div>
+                <div class="signal-row active">
+                  <div class="signal-icon">03</div>
+                  <div class="signal-content">
+                    <div class="signal-title">AI Analysis</div>
+                    <div class="signal-detail">Generating structured output</div>
+                  </div>
+                  <span class="signal-status processing">Processing</span>
+                </div>
+                <div class="signal-row pending">
+                  <div class="signal-icon">04</div>
+                  <div class="signal-content">
+                    <div class="signal-title">Risk Validation</div>
+                    <div class="signal-detail">Awaiting signal</div>
+                  </div>
+                  <span class="signal-status waiting">Waiting</span>
+                </div>
+                <div class="signal-row pending">
+                  <div class="signal-icon">05</div>
+                  <div class="signal-content">
+                    <div class="signal-title">Paper Execution</div>
+                    <div class="signal-detail">Awaiting validation</div>
+                  </div>
+                  <span class="signal-status waiting">Waiting</span>
+                </div>
+              </div>
             </div>
-            <div class="ws-metric">
-              <div class="ws-metric-label">Max Drawdown</div>
-              <div class="ws-metric-value amber">-5.2%</div>
+
+            <div class="dash-panel">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title">Risk Manager</span>
+                <span class="dash-panel-badge amber">Active</span>
+              </div>
+              <div class="risk-metrics">
+                <div class="risk-metric">
+                  <div class="risk-metric-header">
+                    <span class="risk-metric-label">Position Size</span>
+                    <span class="risk-metric-value safe">2.4%</span>
+                  </div>
+                  <div class="risk-bar-track">
+                    <div class="risk-bar-fill safe" style="width: 24%"></div>
+                  </div>
+                </div>
+                <div class="risk-metric">
+                  <div class="risk-metric-header">
+                    <span class="risk-metric-label">Max Drawdown</span>
+                    <span class="risk-metric-value warning">-5.2%</span>
+                  </div>
+                  <div class="risk-bar-track">
+                    <div class="risk-bar-fill warning" style="width: 52%"></div>
+                  </div>
+                </div>
+                <div class="risk-dial">
+                  <div class="risk-dial-inner">
+                    <span class="risk-dial-value">34</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="risk-meter">
-              <div class="ws-metric-label">Risk Level</div>
-              <div class="risk-bar">
-                <div class="risk-fill" style="width: 35%"></div>
+
+            <div class="dash-panel">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title">Execution State</span>
+                <span class="dash-panel-badge green">Ready</span>
+              </div>
+              <div class="execution-content">
+                <div class="execution-mode">
+                  <div class="execution-mode-label">Mode</div>
+                  <div class="execution-mode-value">
+                    <span class="mode-indicator"></span>
+                    PAPER
+                  </div>
+                </div>
+                <div class="execution-stats">
+                  <div class="execution-stat">
+                    <span class="execution-stat-label">Pending Orders</span>
+                    <span class="execution-stat-value">0</span>
+                  </div>
+                  <div class="execution-stat">
+                    <span class="execution-stat-label">Last Signal</span>
+                    <span class="execution-stat-value">HOLD</span>
+                  </div>
+                  <div class="execution-stat">
+                    <span class="execution-stat-label">Session P&L</span>
+                    <span class="execution-stat-value" style="color: var(--green);">+2.4%</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="ws-panel">
-            <div class="ws-panel-header">
-              <span class="ws-panel-title">Execution State</span>
-              <span class="ws-panel-badge">Ready</span>
+          <div class="dashboard-footer">
+            <span class="footer-note">// All data shown is simulated for demonstration purposes</span>
+            <div class="footer-execution">
+              <span class="status-dot"></span>
+              Paper Execution Only
             </div>
-            <div class="ws-metric">
-              <div class="ws-metric-label">Mode</div>
-              <div class="ws-metric-value positive">PAPER</div>
-            </div>
-            <div class="ws-metric">
-              <div class="ws-metric-label">Pending Orders</div>
-              <div class="ws-metric-value">0</div>
-            </div>
-            <div class="ws-signal-list">
-              <div class="ws-signal">
-                <span class="ws-signal-name">last_signal</span>
-                <span class="ws-signal-value neutral">HOLD</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ws-footer">
-          <span class="ws-footer-note">// All data shown is simulated for demonstration</span>
-          <div class="execution-state">
-            <span class="status-dot"></span>
-            Paper Execution Only
           </div>
         </div>
       </div>
@@ -1453,20 +2903,24 @@
     ======================================== -->
     <section id="build">
       <div class="build-section">
-        <div class="section-label">Transparency</div>
-        <h2>Building TRION in public.</h2>
-        <p>
-          Follow along as we build, break, and rebuild. Architecture discussions, AI infrastructure research, runtime engineering, constrained cognition experiments, verification systems, and observability patterns.
-        </p>
-        <div class="build-topics">
-          <span class="build-topic">architecture</span>
-          <span class="build-topic">ai-infrastructure</span>
-          <span class="build-topic">runtime-engineering</span>
-          <span class="build-topic">constrained-cognition</span>
-          <span class="build-topic">verification-systems</span>
-          <span class="build-topic">observability</span>
+        <div class="build-card">
+          <div class="build-content">
+            <div class="section-label">Transparency</div>
+            <h2>Building TRION in public.</h2>
+            <p>
+              Follow along as we build, break, and rebuild. Architecture discussions, AI infrastructure research, runtime engineering, constrained cognition experiments, verification systems, and observability patterns.
+            </p>
+            <div class="build-topics">
+              <span class="build-topic">architecture</span>
+              <span class="build-topic">ai-infrastructure</span>
+              <span class="build-topic">runtime-engineering</span>
+              <span class="build-topic">constrained-cognition</span>
+              <span class="build-topic">verification-systems</span>
+              <span class="build-topic">observability</span>
+            </div>
+            <a href="https://usetrion.com/blog/" class="btn-primary">Read the Build Log</a>
+          </div>
         </div>
-        <a href="https://usetrion.com/blog/" class="btn-primary">Read the Build Log</a>
       </div>
     </section>
 
@@ -1478,14 +2932,14 @@
         <div class="section-label">Follow the Journey</div>
         <h2 class="section-title">Public Build Content</h2>
         <p class="section-subtitle">
-          Follow the public build journey, architecture breakdowns, runtime experiments, and AI infrastructure research.
+          Follow the public build journey, architecture breakdowns, runtime experiments, and AI infrastructure research across platforms.
         </p>
       </div>
 
       <div class="social-grid">
         <a href="https://tiktok.com/@trionai0" target="_blank" class="social-card">
           <div class="social-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
             </svg>
           </div>
@@ -1494,111 +2948,121 @@
         </a>
         <a href="https://discord.gg/trion" target="_blank" class="social-card">
           <div class="social-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
             </svg>
           </div>
           <h3>Discord</h3>
-          <p>Join Community</p>
+          <p>Join the community</p>
         </a>
-        <a href="https://youtube.com/@UseTrionAI" target="_blank" class="social-card">
+        <a href="https://youtube.com/@trionai" target="_blank" class="social-card">
           <div class="social-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
               <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
             </svg>
           </div>
           <h3>YouTube</h3>
-          <p>Coming Soon</p>
+          <p>Deep dives</p>
         </a>
-        <a href="https://twitter.com/TrionAI161554" target="_blank" class="social-card">
+        <a href="https://x.com/trionai" target="_blank" class="social-card">
           <div class="social-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
           </div>
           <h3>X / Twitter</h3>
-          <p>@TrionAI</p>
+          <p>Updates & threads</p>
         </a>
       </div>
     </section>
 
     <!-- ========================================
-         BETA APPLICATION
+         BETA APPLICATION FORM
     ======================================== -->
     <section id="beta">
       <div class="beta-section">
-        <div class="beta-header">
-          <div class="beta-badge">Selective Access</div>
-          <h2>Apply for Beta</h2>
-          <p>We are hand-selecting a small group of testers who understand infrastructure-first approaches to AI trading systems.</p>
-        </div>
-
-        <div class="beta-form-wrapper">
-          <form class="beta-form" id="betaForm" name="beta-application" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-            <input type="hidden" name="form-name" value="beta-application">
-            <p style="display:none">
-              <label>Do not fill this out: <input name="bot-field"></label>
+        <div class="beta-glow"></div>
+        <div class="beta-card">
+          <div class="beta-header">
+            <div class="beta-badge">
+              <span class="dot"></span>
+              Limited Beta
+            </div>
+            <h2>Apply for Early Access</h2>
+            <p>
+              TRION is currently in closed beta. Apply for early access to the AI trading infrastructure platform.
             </p>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input type="text" id="firstName" name="firstName" placeholder="Alex" required>
+          </div>
+          
+          <div class="beta-form-wrapper">
+            <form 
+              name="beta-application" 
+              method="POST" 
+              data-netlify="true" 
+              netlify-honeypot="bot-field"
+              class="beta-form"
+              id="beta-form"
+            >
+              <input type="hidden" name="form-name" value="beta-application">
+              <p style="display: none;">
+                <label>Do not fill this out: <input name="bot-field"></label>
+              </p>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" id="name" name="name" placeholder="Your name" required>
+                </div>
+                <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" placeholder="you@example.com" required>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="you@email.com" required>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="experience">Trading Experience</label>
+                  <select id="experience" name="experience" required>
+                    <option value="" disabled selected>Select experience level</option>
+                    <option value="beginner">Beginner (0-1 years)</option>
+                    <option value="intermediate">Intermediate (1-3 years)</option>
+                    <option value="advanced">Advanced (3-5 years)</option>
+                    <option value="expert">Expert (5+ years)</option>
+                    <option value="institutional">Institutional/Professional</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="interest">Primary Interest</label>
+                  <select id="interest" name="interest" required>
+                    <option value="" disabled selected>Select interest</option>
+                    <option value="ai-research">AI Infrastructure Research</option>
+                    <option value="paper-trading">Paper Trading / Backtesting</option>
+                    <option value="risk-systems">Risk Management Systems</option>
+                    <option value="observability">Observability / Tracing</option>
+                    <option value="build-public">Following Build in Public</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
               </div>
-            </div>
-
-            <div class="form-row">
+              
               <div class="form-group">
-                <label for="experience">Trading Experience</label>
-                <select id="experience" name="experience" required>
-                  <option value="" disabled selected>Select level</option>
-                  <option value="beginner">Beginner - just learning</option>
-                  <option value="intermediate">Intermediate - 1-2 years</option>
-                  <option value="advanced">Advanced - 3+ years</option>
-                  <option value="professional">Professional - full-time</option>
-                  <option value="developer">Developer - building tools</option>
-                </select>
+                <label for="message">Why TRION? (Optional)</label>
+                <textarea id="message" name="message" placeholder="Tell us about your interest in AI trading infrastructure, what problems you're trying to solve, or what drew you to TRION..."></textarea>
               </div>
-              <div class="form-group">
-                <label for="market">Primary Market</label>
-                <select id="market" name="market" required>
-                  <option value="" disabled selected>Select market</option>
-                  <option value="crypto-spot">Crypto - Spot</option>
-                  <option value="crypto-futures">Crypto - Futures</option>
-                  <option value="stocks">Stocks / Equities</option>
-                  <option value="forex">Forex</option>
-                  <option value="multiple">Multiple Markets</option>
-                  <option value="none">Learning / None yet</option>
-                </select>
-              </div>
+              
+              <button type="submit" class="btn-submit">Submit Application</button>
+              
+              <p class="form-note">Paper trading only. No real capital. Research purposes.</p>
+            </form>
+            
+            <div class="success-state" id="success-state">
+              <div class="success-icon">&#10003;</div>
+              <h3>Application Received</h3>
+              <p>
+                Thanks for your interest in TRION. We review applications weekly and will be in touch if there's a fit.
+                In the meantime, follow the build on <a href="https://usetrion.com/blog/">the blog</a> or join <a href="https://discord.gg/trion" target="_blank">Discord</a>.
+              </p>
             </div>
-
-            <div class="form-group">
-              <label for="reason">Why do you want access to TRION?</label>
-              <textarea id="reason" name="reason" placeholder="What interests you about infrastructure-first AI trading? What would you test and provide feedback on?" required></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="social">Social / Profile Link <span style="font-weight: 400; color: var(--text-dim);">(optional)</span></label>
-              <input type="text" id="social" name="social" placeholder="https://twitter.com/yourhandle">
-            </div>
-
-            <button type="submit" class="btn-submit">Submit Application</button>
-            <p class="form-note">// Applications reviewed manually. No spam, ever.</p>
-          </form>
-
-          <div class="success-state" id="successState">
-            <div class="success-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </div>
-            <h3>Application Received</h3>
-            <p>We will review your application and reach out when beta access opens.<br>Follow the build at <a href="https://tiktok.com/@trionai0" target="_blank">@trionai0</a>.</p>
           </div>
         </div>
       </div>
@@ -1612,141 +3076,105 @@
     <div class="container">
       <div class="footer-inner">
         <div class="footer-left">
-          <span class="logo" style="font-size: 14px;">TRION</span>
+          &copy; 2025 TRION. All rights reserved.
         </div>
         <div class="footer-links">
           <a href="https://usetrion.com/blog/">Blog</a>
-          <a href="https://discord.gg/qGmSbbA26A" target="_blank">Discord</a>
+          <a href="https://discord.gg/trion" target="_blank">Discord</a>
           <a href="https://tiktok.com/@trionai0" target="_blank">TikTok</a>
-          <a href="https://youtube.com/@UseTrionAI" target="_blank">YouTube</a>
-          <a href="https://twitter.com/TrionAI161554" target="_blank">X</a>
+          <a href="https://x.com/trionai" target="_blank">X / Twitter</a>
         </div>
       </div>
       <div class="footer-tagline">
-        &copy; 2026 TRION — AI assists. Risk protects. Humans remain the final authority.
+        AI assists. Risk protects. Humans remain the final authority.
       </div>
     </div>
   </footer>
 
   <script>
-    /* =============================================
-       PIPELINE ANIMATION
-    ============================================= */
-    const stages = document.querySelectorAll('.pipeline-stage');
-    const latencies = ['12ms', '8ms', '24ms', '156ms', '89ms', '34ms', '2ms'];
-    const confidences = [100, 100, 100, 87, 92, 78, 100];
-    let currentStage = 0;
+    // Form submission handling
+    const form = document.getElementById('beta-form');
+    const successState = document.getElementById('success-state');
 
-    function animatePipeline() {
-      stages.forEach((stage, index) => {
-        const indicator = stage.querySelector('.stage-indicator');
-        const latencyEl = stage.querySelector('.latency');
-        const confidenceFill = stage.querySelector('.confidence-fill');
-
-        if (index < currentStage) {
-          indicator.className = 'stage-indicator complete';
-          if (latencyEl) latencyEl.textContent = latencies[index];
-          if (confidenceFill) confidenceFill.style.width = '100%';
-        } else if (index === currentStage) {
-          indicator.className = 'stage-indicator active';
-          if (latencyEl) latencyEl.textContent = latencies[index];
-          if (confidenceFill) confidenceFill.style.width = confidences[index] + '%';
-        } else {
-          indicator.className = 'stage-indicator pending';
-          if (latencyEl) latencyEl.textContent = '--';
-          if (confidenceFill) confidenceFill.style.width = '0%';
-        }
-      });
-
-      currentStage++;
-      if (currentStage > stages.length) {
-        currentStage = 0;
-      }
-    }
-
-    setInterval(animatePipeline, 1200);
-
-    /* =============================================
-       WORKSTATION DATA SIMULATION
-    ============================================= */
-    const biases = ['BULLISH', 'BEARISH', 'NEUTRAL'];
-    const biasColors = ['positive', '', 'amber'];
-
-    function updateWorkstation() {
-      // Update confidence
-      const confidence = (0.5 + Math.random() * 0.4).toFixed(2);
-      const confEl = document.querySelector('.ws-panel:first-child .ws-metric:nth-child(3) .ws-metric-value');
-      if (confEl) confEl.textContent = confidence;
-
-      // Update signals
-      const momentum = (Math.random() * 0.8 - 0.2).toFixed(2);
-      const volatility = (Math.random() * 0.3).toFixed(2);
-
-      const momentumEl = document.querySelector('.ws-signal:first-child .ws-signal-value');
-      const volEl = document.querySelector('.ws-signal:nth-child(2) .ws-signal-value');
-
-      if (momentumEl) {
-        momentumEl.textContent = (momentum >= 0 ? '+' : '') + momentum;
-        momentumEl.className = 'ws-signal-value ' + (momentum > 0.1 ? 'bullish' : momentum < -0.1 ? 'bearish' : 'neutral');
-      }
-
-      if (volEl) {
-        volEl.textContent = volatility;
-        volEl.className = 'ws-signal-value neutral';
-      }
-
-      // Update risk
-      const riskLevel = Math.random() * 60 + 10;
-      const riskFill = document.querySelector('.risk-fill');
-      if (riskFill) riskFill.style.width = riskLevel + '%';
-    }
-
-    setInterval(updateWorkstation, 3000);
-
-    /* =============================================
-       SMOOTH SCROLL
-    ============================================= */
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
+    if (form) {
+      form.addEventListener('submit', function(e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
-    });
-
-    /* =============================================
-       FORM HANDLING (Netlify Forms)
-    ============================================= */
-    const betaForm = document.getElementById('betaForm');
-    const successState = document.getElementById('successState');
-
-    if (betaForm) {
-      betaForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        const formData = new FormData(betaForm);
-
+        
+        const formData = new FormData(form);
+        
         fetch('/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams(formData).toString()
         })
         .then(() => {
-          betaForm.style.display = 'none';
+          form.style.display = 'none';
           successState.style.display = 'block';
         })
         .catch((error) => {
           console.error('Form submission error:', error);
-          alert('There was an error submitting your application. Please try again.');
+          alert('There was an error submitting the form. Please try again.');
         });
       });
     }
-  </script>
 
+    // Animate pipeline stages
+    function animatePipeline() {
+      const stages = document.querySelectorAll('.pipeline-stage');
+      let currentStage = 3; // Start at stage 4 (0-indexed)
+      
+      setInterval(() => {
+        // Reset all to complete or pending
+        stages.forEach((stage, index) => {
+          stage.classList.remove('active');
+          if (index < currentStage) {
+            stage.classList.add('complete');
+            stage.classList.remove('pending');
+          } else if (index === currentStage) {
+            stage.classList.add('active');
+            stage.classList.remove('pending', 'complete');
+          } else {
+            stage.classList.add('pending');
+            stage.classList.remove('complete');
+          }
+        });
+        
+        // Cycle through stages
+        currentStage = (currentStage + 1) % 6;
+        if (currentStage === 0) currentStage = 3; // Reset to stage 4
+      }, 3000);
+    }
+
+    // Update timestamp
+    function updateTimestamp() {
+      const timestamp = document.querySelector('.chrome-timestamp');
+      if (timestamp) {
+        const now = new Date();
+        timestamp.textContent = now.toISOString().slice(11, 19) + ' UTC';
+      }
+    }
+
+    // Animate confidence and metrics
+    function animateMetrics() {
+      const confidenceFill = document.querySelector('.ai-confidence .confidence-fill');
+      const confidenceValue = document.querySelector('.ai-confidence-value');
+      
+      if (confidenceFill && confidenceValue) {
+        setInterval(() => {
+          const newValue = 0.65 + Math.random() * 0.25;
+          confidenceFill.style.width = (newValue * 100) + '%';
+          confidenceValue.textContent = newValue.toFixed(2);
+        }, 4000);
+      }
+    }
+
+    // Initialize animations
+    document.addEventListener('DOMContentLoaded', () => {
+      animatePipeline();
+      animateMetrics();
+      updateTimestamp();
+      setInterval(updateTimestamp, 1000);
+    });
+  </script>
 </body>
 </html>
