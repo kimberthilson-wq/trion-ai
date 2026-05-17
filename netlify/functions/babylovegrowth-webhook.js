@@ -171,38 +171,27 @@ exports.handler = async (event) => {
     const payload = JSON.parse(rawBody);
 
     console.log("[webhook] Incoming payload keys:", Object.keys(payload));
-
-    console.log("=== FULL INCOMING PAYLOAD START ===");
+    console.log("[webhook] === FULL INCOMING PAYLOAD START ===");
     console.log(JSON.stringify(payload, null, 2));
-    console.log("=== FULL INCOMING PAYLOAD END ===");
+    console.log("[webhook] === FULL INCOMING PAYLOAD END ===");
 
     const articleData = extractArticleData(payload);
 
     console.log("[webhook] Extracted article data keys:", Object.keys(articleData));
-    console.log("=== EXTRACTED ARTICLE DATA START ===");
+    console.log("[webhook] === EXTRACTED ARTICLE DATA START ===");
     console.log(JSON.stringify(articleData, null, 2));
-    console.log("=== EXTRACTED ARTICLE DATA END ===");
+    console.log("[webhook] === EXTRACTED ARTICLE DATA END ===");
 
     const newArticle = normalizeArticle(articleData);
+    console.log("[webhook] === MAPPED VALUES START ===");
+    console.log("[webhook] MAPPED title:", newArticle.title);
+    console.log("[webhook] MAPPED excerpt:", newArticle.excerpt);
+    console.log("[webhook] MAPPED featuredImage:", newArticle.featuredImage);
+    console.log("[webhook] MAPPED content:", newArticle.content);
+    console.log("[webhook] === MAPPED VALUES END ===");
 
-    console.log("=== FINAL MAPPED ARTICLE START ===");
-    console.log(
-      JSON.stringify(
-        {
-          id: newArticle.id,
-          title: newArticle.title,
-          excerpt: newArticle.excerpt,
-          featuredImage: newArticle.featuredImage,
-          publishDate: newArticle.publishDate,
-          content: newArticle.content,
-        },
-        null,
-        2
-      )
-    );
-    console.log("=== FINAL MAPPED ARTICLE END ===");
-
-    const fileUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
+    const fileUrl =
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
 
     console.log("[webhook] Fetching current articles from GitHub...");
     const currentFile = await githubRequest(fileUrl);
