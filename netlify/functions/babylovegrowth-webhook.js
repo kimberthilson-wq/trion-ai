@@ -157,20 +157,23 @@ exports.handler = async (event) => {
     const rawBody = event.body || "{}";
     const payload = JSON.parse(rawBody);
     console.log("[webhook] Incoming payload keys:", Object.keys(payload));
-    console.log("[webhook] Incoming payload:", JSON.stringify(payload).slice(0, 2000));
+    console.log("[webhook] === FULL INCOMING PAYLOAD START ===");
+    console.log(JSON.stringify(payload, null, 2));
+    console.log("[webhook] === FULL INCOMING PAYLOAD END ===");
 
     const articleData = extractArticleData(payload);
     console.log("[webhook] Extracted article data keys:", Object.keys(articleData));
+    console.log("[webhook] === EXTRACTED ARTICLE DATA START ===");
+    console.log(JSON.stringify(articleData, null, 2));
+    console.log("[webhook] === EXTRACTED ARTICLE DATA END ===");
 
     const newArticle = normalizeArticle(articleData);
-    console.log("[webhook] Parsed article:", JSON.stringify({
-      id: newArticle.id,
-      title: newArticle.title,
-      excerpt: newArticle.excerpt ? newArticle.excerpt.slice(0, 80) + "..." : "(empty)",
-      featuredImage: newArticle.featuredImage || "(none)",
-      publishDate: newArticle.publishDate,
-      contentLength: newArticle.content.length,
-    }));
+    console.log("[webhook] === MAPPED VALUES START ===");
+    console.log("[webhook] MAPPED title:", newArticle.title);
+    console.log("[webhook] MAPPED excerpt:", newArticle.excerpt);
+    console.log("[webhook] MAPPED featuredImage:", newArticle.featuredImage);
+    console.log("[webhook] MAPPED content:", newArticle.content);
+    console.log("[webhook] === MAPPED VALUES END ===");
 
     const fileUrl =
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
