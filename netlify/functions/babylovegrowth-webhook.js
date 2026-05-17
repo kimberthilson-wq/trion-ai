@@ -49,6 +49,7 @@ function normalizeArticle(raw) {
 
   const content =
     raw.content ||
+    raw.content_html ||
     raw.body ||
     raw.html ||
     raw.bodyHtml ||
@@ -74,6 +75,8 @@ function normalizeArticle(raw) {
     raw.shortDescription ||
     "";
 
+  const imageMatch = (content || "").match(/<img[^>]+src="([^">]+)"/i);
+
   const featuredImage =
     raw.featuredImage ||
     raw.featured_image ||
@@ -90,7 +93,7 @@ function normalizeArticle(raw) {
     raw.heroImage ||
     raw.og_image ||
     raw.ogImage ||
-    "";
+    (imageMatch ? imageMatch[1] : "");
 
   const publishDate =
     raw.publishDate ||
@@ -183,11 +186,12 @@ exports.handler = async (event) => {
     console.log("[webhook] === EXTRACTED ARTICLE DATA END ===");
 
     const newArticle = normalizeArticle(articleData);
+
     console.log("[webhook] === MAPPED VALUES START ===");
     console.log("[webhook] MAPPED title:", newArticle.title);
     console.log("[webhook] MAPPED excerpt:", newArticle.excerpt);
     console.log("[webhook] MAPPED featuredImage:", newArticle.featuredImage);
-    console.log("[webhook] MAPPED content:", newArticle.content);
+    console.log("[webhook] MAPPED content length:", newArticle.content.length);
     console.log("[webhook] === MAPPED VALUES END ===");
 
     const fileUrl =
