@@ -13,41 +13,95 @@ function slugify(text = "") {
     .replace(/^-+|-+$/g, "");
 }
 
-function normalizeArticle(payload) {
+function extractArticleData(payload) {
+  if (!payload || typeof payload !== "object") {
+    return {};
+  }
+
+  const nested =
+    payload.article ||
+    payload.data ||
+    payload.post ||
+    payload.entry ||
+    payload.item ||
+    null;
+
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    return { ...nested, _event: payload.event || payload.action || payload.type };
+  }
+
+  return payload;
+}
+
+function normalizeArticle(raw) {
   const title =
-    payload.title ||
-    payload.headline ||
-    payload.name ||
+    raw.title ||
+    raw.headline ||
+    raw.name ||
+    raw.subject ||
     "Untitled Article";
 
-  const id =
-    slugify(payload.slug) ||
-    slugify(title) ||
-    `article-${Date.now()}`;
+  const slug = slugify(raw.slug || raw.url_slug || raw.permalink || "");
+  const id = slug || slugify(title) || `article-${Date.now()}`;
+
+  const content =
+    raw.content ||
+    raw.body ||
+    raw.html ||
+    raw.bodyHtml ||
+    raw.body_html ||
+    raw.full_content ||
+    raw.articleBody ||
+    raw.article_body ||
+    raw.text ||
+    "";
+
+  const excerpt =
+    raw.excerpt ||
+    raw.summary ||
+    raw.description ||
+    raw.subtitle ||
+    raw.meta_description ||
+    raw.metaDescription ||
+    raw.short_description ||
+    "";
+
+  const featuredImage =
+    raw.featuredImage ||
+    raw.featured_image ||
+    raw.image ||
+    raw.imageUrl ||
+    raw.image_url ||
+    raw.coverImage ||
+    raw.cover_image ||
+    raw.thumbnail ||
+    raw.banner ||
+    raw.hero_image ||
+    raw.og_image ||
+    "";
+
+  const publishDate =
+    raw.publishDate ||
+    raw.publish_date ||
+    raw.published_at ||
+    raw.publishedAt ||
+    raw.date ||
+    raw.created_at ||
+    raw.createdAt ||
+    new Date().toISOString().slice(0, 10);
+
+  const normalizedDate =
+    typeof publishDate === "string" && publishDate.length > 10
+      ? publishDate.slice(0, 10)
+      : publishDate;
 
   return {
     id,
     title,
-    excerpt:
-      payload.excerpt ||
-      payload.summary ||
-      payload.description ||
-      "",
-    featuredImage:
-      payload.featuredImage ||
-      payload.image ||
-      payload.imageUrl ||
-      payload.coverImage ||
-      "",
-    publishDate:
-      payload.publishDate ||
-      payload.date ||
-      new Date().toISOString().slice(0, 10),
-    content:
-      payload.content ||
-      payload.body ||
-      payload.html ||
-      "<p>No content provided.</p>",
+    excerpt,
+    featuredImage,
+    publishDate: normalizedDate,
+    content: content || "<p>No content provided.</p>",
   };
 }
 
@@ -71,13 +125,16 @@ async function githubRequest(url, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(JSON.stringify(data));
+    const errorMsg = `GitHub API error: ${response.status} ${response.statusText} — ${JSON.stringify(data)}`;
+    throw new Error(errorMsg);
   }
 
   return data;
 }
 
 exports.handler = async (event) => {
+  console.log("[webhook] Received request:", event.httpMethod);
+
   try {
     if (event.httpMethod !== "POST") {
       return {
@@ -90,19 +147,37 @@ exports.handler = async (event) => {
     const authHeader = event.headers.authorization || "";
 
     if (expectedToken && authHeader !== `Bearer ${expectedToken}`) {
+      console.log("[webhook] Authorization failed");
       return {
         statusCode: 401,
         body: JSON.stringify({ error: "Unauthorized" }),
       };
     }
 
-    const payload = JSON.parse(event.body || "{}");
-    const newArticle = normalizeArticle(payload);
+    const rawBody = event.body || "{}";
+    const payload = JSON.parse(rawBody);
+    console.log("[webhook] Incoming payload keys:", Object.keys(payload));
+    console.log("[webhook] Incoming payload:", JSON.stringify(payload).slice(0, 2000));
+
+    const articleData = extractArticleData(payload);
+    console.log("[webhook] Extracted article data keys:", Object.keys(articleData));
+
+    const newArticle = normalizeArticle(articleData);
+    console.log("[webhook] Parsed article:", JSON.stringify({
+      id: newArticle.id,
+      title: newArticle.title,
+      excerpt: newArticle.excerpt ? newArticle.excerpt.slice(0, 80) + "..." : "(empty)",
+      featuredImage: newArticle.featuredImage || "(none)",
+      publishDate: newArticle.publishDate,
+      contentLength: newArticle.content.length,
+    }));
 
     const fileUrl =
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
 
+    console.log("[webhook] Fetching current articles from GitHub...");
     const currentFile = await githubRequest(fileUrl);
+    console.log("[webhook] GitHub fetch status: OK, sha:", currentFile.sha);
 
     const decodedContent = Buffer.from(
       currentFile.content,
@@ -115,19 +190,25 @@ exports.handler = async (event) => {
       blogData.articles = [];
     }
 
+    const existingCount = blogData.articles.length;
+    console.log("[webhook] Existing article count:", existingCount);
+
     const existingIndex = blogData.articles.findIndex(
       (article) => article.id === newArticle.id
     );
 
     if (existingIndex >= 0) {
+      console.log("[webhook] Updating existing article at index:", existingIndex);
       blogData.articles[existingIndex] = newArticle;
     } else {
+      console.log("[webhook] Appending new article at front of list");
       blogData.articles.unshift(newArticle);
     }
 
     const updatedContent = JSON.stringify(blogData, null, 2);
 
-    await githubRequest(
+    console.log("[webhook] Committing updated articles.json to GitHub...");
+    const commitResult = await githubRequest(
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`,
       {
         method: "PUT",
@@ -143,16 +224,25 @@ exports.handler = async (event) => {
       }
     );
 
+    console.log("[webhook] GitHub commit status: OK, new sha:", commitResult.content?.sha);
+    console.log("[webhook] Final saved article count:", blogData.articles.length);
+
     return {
       statusCode: 200,
       body: JSON.stringify({
         success: true,
-        message: "Article added to blog/articles.json",
-        article: newArticle,
+        message: "Article saved to blog/articles.json",
+        article: {
+          id: newArticle.id,
+          title: newArticle.title,
+          publishDate: newArticle.publishDate,
+        },
+        totalArticles: blogData.articles.length,
       }),
     };
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error("[webhook] Error:", error.message);
+    console.error("[webhook] Stack:", error.stack);
 
     return {
       statusCode: 500,
